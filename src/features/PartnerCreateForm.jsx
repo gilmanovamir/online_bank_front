@@ -1,6 +1,5 @@
 import React from 'react';
-
-const PARTNER_CATEGORIES = ['FOOD', 'ENTERTAINMENT', 'MEDICINE'];
+import {PARTNER_CATEGORIES} from "../model/constants";
 
 const PartnerCreateForm = ({values, onChange, onSubmit, loading}) => (
     <form onSubmit={onSubmit} style={{maxWidth: '500px'}}>

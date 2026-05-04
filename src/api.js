@@ -126,14 +126,14 @@ export const RegistrationApi = {
     signUpAdmin: (data) => api.post("/api/sign-up/admin", data),
 
     // Метод для подтверждения кода после регистрации (ТОТ САМЫЙ, КОТОРОГО НЕ ХВАТАЛО)
-    verifyFirst: (verifyData) => api.post("/api/first-auth-verify/first/email", verifyData)
+    verifyFirst: (verifyData) => api.post("/api/first-verify/email", verifyData)
 };
 
 export const AuthApi = {
     login: (loginData) => api.post("/api/login", loginData),
 
     // Верификация существующего пользователя (вход с нового устройства / UA mismatch)
-    verifyDefault: (verifyData) => api.post("/api/first-auth-verify/default/email", verifyData),
+    verifyDefault: (verifyData) => api.post("/api/default-verify/email", verifyData),
 
     logout: (token, deviceId) => api.post("/api/logout", {token, deviceId})
 };
@@ -156,13 +156,14 @@ export const OperationApi = {
 
 export const BonusApi = {
     convert: (data) => request("post", "/api/bonus/convert", data),
+    all: () => request("get", "/api/bonus")
 };
 
 export const CurrencyApi = {
-    createExchangeRate: (base, target, amount) => request("post", "/api/currency/create", {
+    createExchangeRate: (base, target, providedAmountInBaseCurrency) => request("post", "/api/currency/create", {
         baseCurrency: base,
         targetCurrency: target,
-        amount: amount
+        providedAmountInBaseCurrency: providedAmountInBaseCurrency
     }),
     convertCurrency: (data) => request("post", "/api/currency/convert", data),
     findRate: (base, target) => request("post", "/api/currency/find-rate", {
@@ -182,7 +183,7 @@ export const PayApi = {
 
 export const QuestApi = {
     createRandomQuest: () => request("post", "/api/quest"),
-    getUserQuests: () => request("get", "/api/quest/get-user")
+    getUserQuests: () => request("get", "/api/quest/load-user")
 };
 
 export const UserApi = {
@@ -190,8 +191,8 @@ export const UserApi = {
 };
 
 export const CodeApi = {
-    deleteOldCodes: () => request("delete", "/api/code"),
-    regenerateOtp: (email) => request("patch", "/api/code/update/otp", {email}),
+    deleteOldCodes: () => request("delete", "/api/verification-code"),
+    regenerateOtp: (email) => request("patch", "/api/verification-code/update", {email}),
 };
 
 export const TestApi = {

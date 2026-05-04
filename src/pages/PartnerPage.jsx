@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {PartnerApi} from '../api';
 import {useForm} from '../hooks/useForm';
-import PartnerCreateForm from '../components/PartnerCreateForm';
-import PartnerList from "../components/PartnerList";
+import PartnerCreateForm from '../features/PartnerCreateForm';
+import PartnerList from "../features/PartnerList";
 import { getUserRole } from "../utils/authUtils"; // 1. Импортируем утилиту
 
 const PartnerPage = () => {

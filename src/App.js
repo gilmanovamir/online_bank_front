@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import './App.css';
+import {
+    Box,
+    Flex,
+    VStack,
+    Text,
+    Button,
+    Heading,
+    Separator
+} from '@chakra-ui/react';
 
+// Твои импорты
 import AccountPage from "./pages/AccountPage";
 import OperationPage from "./pages/OperationPage";
 import AuthenticationPage from "./pages/AuthenticationPage";
@@ -11,29 +20,27 @@ import PayPage from "./pages/PayPage";
 import QuestPage from "./pages/QuestPage";
 import TestPage from "./pages/TestPage";
 import CodePage from "./pages/CodePage";
-import { getUserRole } from "./utils/authUtils";
+
 import { TokenService } from "./utils/tokenService";
+import { getUserRole } from "./utils/authUtils";
 
 function App() {
     const userRole = getUserRole();
     const isAuthenticated = !!TokenService.getRefresh();
 
-    // ГИБКАЯ ИНИЦИАЛИЗАЦИЯ:
-    // Если пользователь авторизован, открываем 'account', если нет — 'authentication'
     const [currentComponent, setCurrentComponent] = useState(
         isAuthenticated ? 'account' : 'authentication'
     );
 
     const handleLogout = () => {
         TokenService.clear();
-        window.location.reload(); // Полный сброс всех состояний
+        window.location.reload();
     };
 
     const menuGroups = [
         {
             title: "Пользователь",
             items: [
-                // Показываем "Вход" только если НЕ авторизован
                 ...(!isAuthenticated ? [{ id: 'authentication', label: 'Вход' }] : []),
                 { id: 'account', label: 'Мои счета' },
             ]
@@ -63,26 +70,20 @@ function App() {
         }
     ];
 
-    // Фильтруем группы меню (логика админа)
     const filteredMenuGroups = menuGroups.filter(group => {
-        if (group.title === "Админ") {
-            return userRole === "ROLE_ADMIN";
-        }
+        if (group.title === "Админ") return userRole === "ROLE_ADMIN";
         return true;
     });
 
     const renderComponent = () => {
         const isAdmin = userRole === "ROLE_ADMIN";
 
-        // Если пользователь залогинен, но текущий компонент 'authentication',
-        // автоматически переключаем на 'account'
         if (isAuthenticated && (currentComponent === 'authentication' || currentComponent === 'registration')) {
             return <AccountPage />;
         }
 
         switch (currentComponent) {
-            case 'account':
-                return <AccountPage />;
+            case 'account': return <AccountPage />;
             case 'authentication':
             case 'registration':
                 return <AuthenticationPage
@@ -90,73 +91,104 @@ function App() {
                     onSuccess={() => setCurrentComponent('account')}
                     userRole={userRole}
                 />;
-            case 'bonusAccount':
-                return <BonusPage />;
-            case 'currency':
-                return <CurrencyPage />;
-            case 'operation':
-                return <OperationPage />;
-            case 'partner':
-                return <PartnerPage />;
-            case 'pay':
-                return <PayPage />;
-            case 'quest':
-                return <QuestPage />;
-
-            // ЗАЩИЩЕННЫЕ РОУТЫ
-            case 'test':
-                return isAdmin ? <TestPage /> : null;
-            case 'code':
-                return isAdmin ? <CodePage /> : null;
-
-            default:
-                return isAuthenticated ? <AccountPage /> : <AuthenticationPage />;
+            case 'bonusAccount': return <BonusPage />;
+            case 'currency': return <CurrencyPage />;
+            case 'operation': return <OperationPage />;
+            case 'partner': return <PartnerPage />;
+            case 'pay': return <PayPage />;
+            case 'quest': return <QuestPage />;
+            case 'test': return isAdmin ? <TestPage /> : null;
+            case 'code': return isAdmin ? <CodePage /> : null;
+            default: return isAuthenticated ? <AccountPage /> : <AuthenticationPage />;
         }
     };
 
     return (
-        <div className="app-layout">
-            <aside className="sidebar">
-                <div className="sidebar-header">
-                    <h2>Online Bank</h2>
-                </div>
-                <nav className="sidebar-nav">
-                    {filteredMenuGroups.map(group => (
-                        <div key={group.title} className="menu-group">
-                            <span className="group-title">{group.title}</span>
-                            {group.items.map(item => (
-                                <button
-                                    key={item.id}
-                                    className={`menu-item ${currentComponent === item.id ? 'active' : ''}`}
-                                    onClick={() => setCurrentComponent(item.id)}
+        <Flex minH="100vh" bg="gray.50">
+            {/* SIDEBAR */}
+            <Box
+                as="aside"
+                w="280px"
+                bg="white"
+                borderRight="1px solid"
+                borderColor="gray.200"
+                pos="fixed"
+                h="full"
+                p={5}
+                zIndex="sticky"
+            >
+                <Flex direction="column" h="full">
+                    <Heading size="md" textAlign="center" color="blue.600" mb={8}>
+                        Online Bank
+                    </Heading>
+
+                    <VStack align="stretch" gap={6} flex="1" overflowY="auto">
+                        {filteredMenuGroups.map(group => (
+                            <Box key={group.title}>
+                                <Text
+                                    fontSize="2xs"
+                                    fontWeight="bold"
+                                    color="gray.500"
+                                    textTransform="uppercase"
+                                    letterSpacing="widest"
+                                    mb={2}
+                                    ml={2}
                                 >
-                                    <span className="menu-label">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    ))}
+                                    {group.title}
+                                </Text>
+                                <VStack align="stretch" gap={1}>
+                                    {group.items.map(item => (
+                                        <Button
+                                            key={item.id}
+                                            // В v3 используем variant и пропсы для активного состояния
+                                            variant={currentComponent === item.id ? "solid" : "ghost"}
+                                            bg={currentComponent === item.id ? "blue.600" : "transparent"}
+                                            color={currentComponent === item.id ? "white" : "gray.700"}
+                                            _hover={{ bg: currentComponent === item.id ? "blue.700" : "gray.100" }}
+                                            justifyContent="flex-start"
+                                            onClick={() => setCurrentComponent(item.id)}
+                                            size="sm"
+                                        >
+                                            {item.label}
+                                        </Button>
+                                    ))}
+                                </VStack>
+                            </Box>
+                        ))}
+                    </VStack>
 
-                    {/* Кнопка выхода */}
+                    {/* LOGOUT SECTION */}
                     {isAuthenticated && (
-                        <div className="menu-group" style={{ marginTop: 'auto' }}>
-                            <button
-                                className="menu-item logout-btn"
+                        <Box pt={4}>
+                            <Separator mb={4} />
+                            <Button
+                                variant="ghost"
+                                color="red.500"
+                                _hover={{ bg: "red.50" }}
+                                w="full"
+                                justifyContent="flex-start"
                                 onClick={handleLogout}
-                                style={{ color: '#dc3545', border: 'none', background: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
                             >
-                                <span className="menu-label">Выйти</span>
-                            </button>
-                        </div>
+                                Выйти
+                            </Button>
+                        </Box>
                     )}
-                </nav>
-            </aside>
+                </Flex>
+            </Box>
 
-            <main className="main-content">
-                <div className="component-container">
+            {/* MAIN CONTENT */}
+            <Box flex="1" ml="280px" p={8}>
+                <Box
+                    bg="white"
+                    p={6}
+                    borderRadius="xl"
+                    boxShadow="sm"
+                    minH="calc(100vh - 64px)"
+                >
                     {renderComponent()}
-                </div>
-            </main>
-        </div>
+                </Box>
+            </Box>
+        </Flex>
     );
 }
 

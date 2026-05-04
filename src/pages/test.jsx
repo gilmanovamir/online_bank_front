@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     Box,
     VStack,
@@ -10,26 +10,26 @@ import {
     Field,
     NativeSelect,
 } from "@chakra-ui/react";
-import {AccountApi, OperationApi} from "../api";
-import {useForm} from "../hooks/useForm";
+import { AccountApi, OperationApi } from "../api";
+import { useForm } from "../hooks/useForm";
 import OperationTable from "../features/OperationTable";
 
 const CURRENCIES = ["RUB", "USD", "CNY"];
 
 const INITIAL_VALUES = {
     accountNumber: "",
-    amount: "",
+    providedAmountInBaseCurrency: "",
     description: "",
     selectedCurrencyCode: "RUB",
 };
 
 const OperationPage = () => {
+    const { values, handleChange, reset } = useForm(INITIAL_VALUES);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [operations, setOperations] = useState([]);
     const [accounts, setAccounts] = useState([]);
-    const [status, setStatus] = useState({loading: false, error: null});
-    const {values, handleChange} = useForm(INITIAL_VALUES);
 
     // загрузка счетов
     const fetchAccounts = useCallback(async () => {
@@ -46,37 +46,35 @@ const OperationPage = () => {
     }, [fetchAccounts]);
 
     const executeOperation = async (apiMethod) => {
-        // 1. Извлекаем число и проверяем его
-        const amount = parseFloat(values.amount);
-
-        if (isNaN(amount) || amount <= 0) {
-            setError("Введите корректную сумму");
-            return;
-        }
-
         setLoading(true);
         setError(null);
+
         try {
-            // 2. Формируем чистый объект для отправки
             const payload = {
                 ...values,
-                amount: amount
+                providedAmountInBaseCurrency: parseFloat(values.providedAmountInBaseCurrency),
             };
 
             const result = await apiMethod(payload);
+
             setOperations((prev) => [result, ...prev]);
+            reset();
         } catch (err) {
-            setError(err.message);
+            setError(err.message || "Ошибка операции");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <VStack gap={6} align="stretch">
-            <Heading size="lg">Операции со счётом</Heading>
+        <VStack gap={6} align="stretch" maxW="600px" mx="auto" py={8}>
+            <Heading size="lg" textAlign="center">
+                Операции со счётом
+            </Heading>
+
             <Box p={6} borderRadius="xl" border="1px solid" borderColor="gray.200" bg="white">
                 <VStack gap={4} align="stretch">
+
                     <Field.Root required>
                         <Field.Label fontSize="sm">Счёт</Field.Label>
                         <NativeSelect.Root>
@@ -100,22 +98,26 @@ const OperationPage = () => {
                         <Input
                             type="number"
                             name="amount"
-                            value={values.amount}
+                            value={values.providedAmountInBaseCurrency}
                             onChange={handleChange}
-                            placeholder="0.0"
+                            placeholder="0.00"
                         />
                     </Field.Root>
 
                     <Field.Root>
                         <Field.Label fontSize="sm">Валюта операции</Field.Label>
                         <NativeSelect.Root>
-                            <NativeSelect.Field name="selectedCurrencyCode" value={values.selectedCurrencyCode}
-                                                onChange={handleChange}>
+                            <NativeSelect.Field
+                                name="selectedCurrencyCode"
+                                value={values.selectedCurrencyCode}
+                                onChange={handleChange}
+                            >
                                 {CURRENCIES.map((code) => (
-                                    <option key={code} value={code}>{code}</option>
+                                    <option key={code} value={code}>
+                                        {code}
+                                    </option>
                                 ))}
                             </NativeSelect.Field>
-                            <NativeSelect.Indicator/>
                         </NativeSelect.Root>
                     </Field.Root>
 
@@ -138,6 +140,7 @@ const OperationPage = () => {
                         >
                             Пополнить
                         </Button>
+
                         <Button
                             colorPalette="red"
                             flex="1"
@@ -152,7 +155,7 @@ const OperationPage = () => {
 
             {error && (
                 <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator/>
+                    <Alert.Indicator />
                     <Alert.Content>
                         <Alert.Title>{error}</Alert.Title>
                     </Alert.Content>
@@ -160,8 +163,10 @@ const OperationPage = () => {
             )}
 
             <Box>
-                <Heading size="md" mb={4}>История текущей сессии</Heading>
-                <OperationTable operations={operations}/>
+                <Heading size="md" mb={4}>
+                    История текущей сессии
+                </Heading>
+                <OperationTable operations={operations} />
             </Box>
         </VStack>
     );

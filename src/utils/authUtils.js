@@ -1,5 +1,6 @@
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
+var roles = [];
 export const getUserRole = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) return null;
@@ -13,5 +14,10 @@ export const getUserRole = () => {
 };
 
 export const getDeviceId = () => {
-    return localStorage.getItem("deviceId") || null;
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId || deviceId === "undefined"){
+        deviceId = crypto.randomUUID()
+        localStorage.setItem("deviceId", deviceId)
+    }
+    return deviceId;
 };

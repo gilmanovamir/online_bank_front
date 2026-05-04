@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 export const useAuthForms = () => {
     // Состояние для логина
@@ -13,12 +13,17 @@ export const useAuthForms = () => {
 
     // Состояние для верификации (OTP)
     const [verifyForm, setVerifyForm] = useState({
-        email: "", code: "", deviceName: "", userAgent: navigator.userAgent,
+        email: "", verificationCode: "", deviceName: "", userAgent: navigator.userAgent
     });
 
-    const handleLoginChange = (e) => setLoginForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    const handleRegChange = (e) => setRegForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    const handleVerifyChange = (e) => setVerifyForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleLoginChange = (e) => setLoginForm(prev => ({...prev, [e.target.name]: e.target.value}));
+    const handleRegChange = (e) => setRegForm(prev => ({...prev, [e.target.name]: e.target.value}));
+    const handleVerifyChange = (e) =>
+        setVerifyForm(prev => ({
+
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
 
     return {
         loginForm, handleLoginChange,

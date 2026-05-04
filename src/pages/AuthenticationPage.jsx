@@ -1,15 +1,140 @@
-import React, { useState, useEffect } from "react";
-import { AuthApi, RegistrationApi, CodeApi } from "../api";
-import { useAuthForms } from "../hooks/useAuthForms";
-import { TokenService } from "../utils/tokenService";
-import { LoginSection, VerifySection } from "../components/AuthForm";
-import RegistrationForm from "../components/RegistrationForm";
+import React, {useState, useEffect} from "react";
+import {
+    Box,
+    Button,
+    Container,
+    Heading,
+    Text,
+    VStack,
+    Alert,
+    Center,
+    Tabs,
+    Flex,
+} from "@chakra-ui/react";
+import {AuthApi, RegistrationApi, CodeApi} from "../api";
+import {useAuthForms} from "../hooks/useAuthForms";
+import {TokenService} from "../utils/tokenService";
+import {LoginSection, VerifySection} from "../features/AuthForm";
+import RegistrationForm from "../features/RegistrationForm";
 import {getDeviceId} from "../utils/authUtils";
 import {getDeviceName} from "../utils/deviceService";
 
-const AuthenticationPage = ({ initialMode = "login", onSuccess, userRole }) => {
+// ─── Вспомогательные функции ──────────────────────────────────────────────────
+
+const getDeviceInfo = () => ({
+    deviceId: getDeviceId(),
+    deviceName: getDeviceName(),
+    userAgent: navigator.userAgent,
+});
+
+const redirectAfter = (delay, callback) =>
+    setTimeout(() => (callback ? callback() : window.location.reload()), delay);
+
+// ─── Подкомпоненты ────────────────────────────────────────────────────────────
+
+const StatusAlert = ({status, message, fontSize}) => (
+    <Alert.Root status={status} mb={4} borderRadius="lg" variant={status === "info" ? "subtle" : undefined}>
+        <Alert.Indicator/>
+        <Alert.Content>
+            {status === "error"
+                ? <Alert.Title>{message}</Alert.Title>
+                : <Text fontSize={fontSize ?? "sm"}>{message}</Text>
+            }
+        </Alert.Content>
+    </Alert.Root>
+);
+
+const AlreadyAuthenticatedView = ({userRole, resendStatus, loading, onSuccess, onLogout}) => (
+    <Center py={10}>
+        <Box
+            bg="white" p={8} borderRadius="2xl" boxShadow="xl"
+            textAlign="center" maxW="400px" border="1px solid" borderColor="gray.100"
+        >
+            <VStack gap={4}>
+                <Heading size="md">Вы уже в системе</Heading>
+                <Text>Вы вошли как <b>{userRole || "Пользователь"}</b></Text>
+                {resendStatus && <Text color="blue.500" fontSize="sm">{resendStatus}</Text>}
+                <Flex gap={3} w="full">
+                    <Button colorPalette="blue" flex="1" onClick={onSuccess}>Кабинет</Button>
+                    <Button variant="outline" colorPalette="red" flex="1" onClick={onLogout} loading={loading}>
+                        Выход
+                    </Button>
+                </Flex>
+            </VStack>
+        </Box>
+    </Center>
+);
+
+const CompletedView = () => (
+    <VStack py={10} gap={4}>
+        <Box fontSize="5xl">Подтверждено!</Box>
+        <Heading size="md" color="green.500">Добро пожаловать!</Heading>
+        <Text>Вы успешно авторизованы.</Text>
+    </VStack>
+);
+
+const VerifyView = ({form, onChange, onVerify, onResend, loading, onBack}) => (
+    <VStack gap={6}>
+        <Heading size="lg">Подтверждение</Heading>
+        <VerifySection
+            form={form}
+            onChange={onChange}
+            onVerify={onVerify}
+            onResend={onResend}
+            loading={loading}
+        />
+        <Button variant="ghost" size="sm" onClick={onBack}>← Вернуться к входу</Button>
+    </VStack>
+);
+
+const AuthTabsView = ({
+                          mode,
+                          onModeChange,
+                          loginForm,
+                          handleLoginChange,
+                          handleLogin,
+                          regForm,
+                          handleRegChange,
+                          handleRegister,
+                          loading,
+                          userRole
+                      }) => (
+    <VStack gap={6} align="stretch">
+        <Heading size="xl" textAlign="center" color="blue.600" mb={2}>Online Bank</Heading>
+
+        <Tabs.Root variant="enclosed" value={mode} onValueChange={(d) => onModeChange(d.value)}>
+            <Tabs.List mb="1em" display="flex">
+                <Tabs.Trigger value="login" flex="1" fontWeight="bold">Вход</Tabs.Trigger>
+                <Tabs.Trigger value="register" flex="1" fontWeight="bold">Регистрация</Tabs.Trigger>
+            </Tabs.List>
+
+            <Tabs.Content value="login" p={0} mt={4}>
+                <LoginSection
+                    form={loginForm}
+                    onChange={handleLoginChange}
+                    onLogin={handleLogin}
+                    loading={loading}
+                />
+            </Tabs.Content>
+
+            <Tabs.Content value="register" p={0} mt={4}>
+                <RegistrationForm
+                    values={regForm}
+                    onChange={handleRegChange}
+                    onSubmit={(e) => handleRegister(e, false)}
+                    onAdminSubmit={() => handleRegister(null, true)}
+                    loading={loading}
+                    showAdminButton={userRole === "ROLE_ADMIN"}
+                />
+            </Tabs.Content>
+        </Tabs.Root>
+    </VStack>
+);
+
+// ─── Основной компонент ───────────────────────────────────────────────────────
+
+const AuthenticationPage = ({initialMode = "login", onSuccess, userRole}) => {
     const [isNewUser, setIsNewUser] = useState(false);
-    // 1. Сначала ВСЕ хуки (стейты, формы, эффекты)
     const [mode, setMode] = useState(initialMode === "registration" ? "register" : "login");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -18,7 +143,7 @@ const AuthenticationPage = ({ initialMode = "login", onSuccess, userRole }) => {
     const {
         loginForm, handleLoginChange,
         regForm, handleRegChange,
-        verifyForm, handleVerifyChange, setVerifyForm
+        verifyForm, handleVerifyChange, setVerifyForm,
     } = useAuthForms();
 
     useEffect(() => {
@@ -27,7 +152,6 @@ const AuthenticationPage = ({ initialMode = "login", onSuccess, userRole }) => {
         }
     }, [initialMode]);
 
-    // 2. Объявление всех функций-обработчиков
     const execute = async (task) => {
         setLoading(true);
         setError(null);
@@ -35,7 +159,7 @@ const AuthenticationPage = ({ initialMode = "login", onSuccess, userRole }) => {
         try {
             await task();
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || "Произошла ошибка");
         } finally {
             setLoading(false);
         }
@@ -43,190 +167,120 @@ const AuthenticationPage = ({ initialMode = "login", onSuccess, userRole }) => {
 
     const handleLogout = () => execute(async () => {
         const refresh = TokenService.getRefresh();
-        const deviceId = getDeviceId(); // Получаем ID устройства
         if (refresh) {
             try {
-                // Отправляем объект согласно RefreshTokenRequestDto
-                await AuthApi.logout(refresh, deviceId);
+                await AuthApi.logout(refresh, getDeviceId());
             } catch (e) {
                 console.error("Logout API failed", e);
             }
         }
         TokenService.clear();
         setResendStatus("Вы вышли из системы");
-        setTimeout(() => window.location.reload(), 1000);
+        redirectAfter(1000);
     });
 
     const handleLogin = () => execute(async () => {
-        const payload = {
-            email: loginForm.email,
-            password: loginForm.password,
-            deviceId: getDeviceId(),
-            deviceName: getDeviceName(),
-            userAgent: navigator.userAgent
-        };
+        const payload = {email: loginForm.email, password: loginForm.password, ...getDeviceInfo()};
 
         try {
             const res = await AuthApi.login(payload);
             TokenService.save(res.data);
             setMode("completed");
-            setTimeout(() => onSuccess ? onSuccess() : window.location.reload(), 1000);
+            redirectAfter(1000, onSuccess);
         } catch (err) {
-            if (err.response?.status === 403) {
-                const newId = err.deviceId || err.response.data?.deviceId;
-                if (newId) {
-                    localStorage.setItem("deviceId", newId);
-                }
+            if (err.response?.status !== 403) throw err;
 
-                setVerifyForm(prev => ({
-                    ...prev,
-                    email: loginForm.email,
-                    deviceId: newId || getDeviceId()
-                }));
-
-                setMode("verify");
-                setResendStatus("Безопасный вход: подтвердите личность кодом из письма");
-            } else {
-                throw err;
-            }
+            setVerifyForm(prev => ({
+                ...prev,
+                email: loginForm.email,
+                deviceId: getDeviceId(),
+            }));
+            setMode("verify");
+            setResendStatus("Новое устройство: подтвердите личность кодом из письма");
         }
     });
 
     const handleRegister = (e, isAdmin = false) => {
-        if (e) e.preventDefault();
+        e?.preventDefault();
         execute(async () => {
             const apiCall = isAdmin ? RegistrationApi.signUpAdmin : RegistrationApi.signUp;
             await apiCall(regForm);
-            setIsNewUser(true); // ЗАПОМИНАЕМ, что это регистрация
-            setVerifyForm(prev => ({ ...prev, email: regForm.email }));
+            setIsNewUser(true);
+            setVerifyForm(prev => ({...prev, email: regForm.email}));
             setMode("verify");
         });
     };
 
-    // 3. Исправленный Verify (ДОБАВЛЕНЫ deviceName и userAgent)
     const handleVerify = () => execute(async () => {
-        const verifyPayload = {
+        const payload = {
             email: verifyForm.email,
-            code: verifyForm.code,
-            deviceId: localStorage.getItem("deviceId") || getDeviceId(),
-            deviceName: getDeviceName(),
-            userAgent: navigator.userAgent
+            verificationCode: verifyForm.verificationCode,
+            ...getDeviceInfo(),
         };
-
-        let response;
-        // Используем наш флаг вместо mode
-        if (isNewUser) {
-            response = await RegistrationApi.verifyFirst(verifyPayload);
-        } else {
-            response = await AuthApi.verifyDefault(verifyPayload);
-        }
+        const response = isNewUser
+            ? await RegistrationApi.verifyFirst(payload)
+            : await AuthApi.verifyDefault(payload);
 
         TokenService.save(response.data);
         setMode("completed");
-        setTimeout(() => onSuccess ? onSuccess() : window.location.reload(), 1500);
+        redirectAfter(1500, onSuccess);
     });
 
-    const handleRegisterSubmit = (e) => {
-        if (e) e.preventDefault();
-        // При регистрации мы сразу просим ввести код, который должен был быть
-        // отправлен при каком-то предварительном действии или будет отправлен сейчас
-        setVerifyForm(prev => ({ ...prev, email: regForm.email }));
-        setMode("register"); // Режим регистрации (ввод кода для нового юзера)
-    };
+    const handleResend = () => execute(async () => {
+        await CodeApi.regenerateOtp(verifyForm.email);
+        setResendStatus("Код отправлен повторно");
+    });
 
-    // 3. Логические проверки (после объявления функций)
     const isAuthenticated = !!TokenService.getRefresh();
+    const isTabMode = mode === "login" || mode === "register";
 
-    // Early Return для авторизованного пользователя
-    if (isAuthenticated && (mode === "login" || mode === "register")) {
+    if (isAuthenticated && isTabMode) {
         return (
-            <div className="auth-card" style={{ textAlign: 'center', padding: '40px' }}>
-                <div className="auth-body">
-                    <h3>Вы уже в системе</h3>
-                    <p>Вы вошли как <b>{userRole || 'Пользователь'}</b></p>
-                    {resendStatus && <div className="auth-info" style={{color: 'blue'}}>{resendStatus}</div>}
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-                        <button onClick={onSuccess} className="btn-success">В личный кабинет</button>
-                        <button onClick={handleLogout} className="btn-danger" disabled={loading}>
-                            {loading ? "Выход..." : "Выйти из аккаунта"}
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <AlreadyAuthenticatedView
+                userRole={userRole}
+                resendStatus={resendStatus}
+                loading={loading}
+                onSuccess={onSuccess}
+                onLogout={handleLogout}
+            />
         );
     }
 
-    // 4. Основной рендер (для гостей или режима верификации)
     return (
-        <div className="auth-card">
-            {(mode === "login" || mode === "register") && (
-                <div className="auth-tabs">
-                    <button
-                        className={mode === "login" ? "tab-btn active" : "tab-btn"}
-                        onClick={() => setMode("login")}
-                    >
-                        Вход
-                    </button>
-                    <button
-                        className={mode === "register" ? "tab-btn active" : "tab-btn"}
-                        onClick={() => setMode("register")}
-                    >
-                        Регистрация
-                    </button>
-                </div>
-            )}
+        <Container maxW="lg" centerContent py={10}>
+            <Box bg="white" w="full" p={8} borderRadius="2xl" boxShadow="2xl" border="1px solid" borderColor="gray.50">
+                {error && <StatusAlert status="error" message={error}/>}
+                {resendStatus && <StatusAlert status="info" message={resendStatus}/>}
 
-            <div className="auth-body">
-                {error && <div className="auth-error">{error}</div>}
-                {resendStatus && <div className="auth-info" style={{color: 'blue', marginBottom: '10px'}}>{resendStatus}</div>}
-
-                {mode === "login" && (
-                    <LoginSection
-                        form={loginForm}
-                        onChange={handleLoginChange}
-                        onLogin={handleLogin}
+                {isTabMode && (
+                    <AuthTabsView
+                        mode={mode}
+                        onModeChange={setMode}
+                        loginForm={loginForm}
+                        handleLoginChange={handleLoginChange}
+                        handleLogin={handleLogin}
+                        regForm={regForm}
+                        handleRegChange={handleRegChange}
+                        handleRegister={handleRegister}
                         loading={loading}
-                    />
-                )}
-
-                {mode === "register" && (
-                    <RegistrationForm
-                        values={regForm}
-                        onChange={handleRegChange}
-                        onSubmit={(e) => handleRegister(e, false)}
-                        onAdminSubmit={() => handleRegister(null, true)}
-                        loading={loading}
-                        showAdminButton={userRole === "ROLE_ADMIN"}
+                        userRole={userRole}
                     />
                 )}
 
                 {mode === "verify" && (
-                    <VerifySection
+                    <VerifyView
                         form={verifyForm}
                         onChange={handleVerifyChange}
                         onVerify={handleVerify}
-                        onResend={() => execute(async () => {
-                            await CodeApi.regenerateOtp(verifyForm.email);
-                            setResendStatus("Код отправлен повторно");
-                        })}
+                        onResend={handleResend}
                         loading={loading}
+                        onBack={() => setMode("login")}
                     />
                 )}
 
-                {mode === "completed" && (
-                    <div className="auth-success" style={{ textAlign: 'center' }}>
-                        <h3 style={{ color: 'green' }}>✓ Добро пожаловать!</h3>
-                        <p>Вы успешно авторизованы.</p>
-                    </div>
-                )}
-            </div>
-
-            {mode === "verify" && (
-                <button className="back-link" onClick={() => setMode("login")}>
-                    ← Вернуться к входу
-                </button>
-            )}
-        </div>
+                {mode === "completed" && <CompletedView/>}
+            </Box>
+        </Container>
     );
 };
 

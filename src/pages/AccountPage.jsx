@@ -1,8 +1,8 @@
 import {AccountApi, OperationApi} from "../api";
 import {useAccountForm} from "../hooks/useAccountForm";
-import AccountCreateForm from "../components/AccountCreateForm";
-import AccountTable from "../components/AccountTable";
-import OperationTable from "../components/OperationTable";
+import AccountCreateForm from "../features/AccountCreateForm";
+import AccountTable from "../features/AccountTable";
+import OperationTable from "../features/OperationTable";
 import React, {useEffect, useState} from "react";
 import { getUserRole } from "../utils/authUtils";
 
@@ -73,12 +73,12 @@ const AccountPage = () => {
             <section className="accounts-section">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3>Список активных счетов</h3>
-                    <button
-                        className="btn-refresh"
-                        onClick={() => request(AccountApi.findAllByHolder, setAccounts)}
-                    >
-                        Обновить данные
-                    </button>
+                    {/*<button*/}
+                    {/*    className="btn-refresh"*/}
+                    {/*    onClick={() => request(AccountApi.findAllByHolder, setAccounts)}*/}
+                    {/*>*/}
+                    {/*    Обновить данные*/}
+                    {/*</button>*/}
                 </div>
 
                 {accounts.length > 0 ? (
@@ -96,7 +96,7 @@ const AccountPage = () => {
                 <section className="history-section" style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #eee' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <h3>История по счету: <span style={{ color: '#007bff' }}>{selectedAcc}</span></h3>
-                        <button className="btn-close" onClick={() => setSelectedAcc(null)}>Закрыть X</button>
+                        {/*<button className="btn-close" onClick={() => setSelectedAcc(null)}>Закрыть X</button>*/}
                     </div>
                     {operations.length > 0 ? (
                         <OperationTable operations={operations}/>

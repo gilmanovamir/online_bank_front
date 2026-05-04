@@ -2,7 +2,7 @@ import {useState} from "react";
 
 export const useOperationForm = () => {
     const [form, setForm] = useState({
-        accountNumber: "", amount: "", description: "", selectedCurrencyCode: "RUB",
+        accountNumber: "", providedAmountInBaseCurrency: "", description: "", selectedCurrencyCode: "RUB",
     });
 
     const handleChange = (e) => {

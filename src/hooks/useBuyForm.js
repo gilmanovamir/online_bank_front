@@ -5,7 +5,7 @@ export const useBuyForm = () => { // 2. Хук — это функция
     const [buyForm, setBuyForm] = useState({
         baseAccountNumber: "",
         targetAccountNumber: "",
-        amount: "",
+        providedAmountInBaseCurrency: "",
     });
 
     // 4. Логика изменения (handleChange) должна быть внутри хука

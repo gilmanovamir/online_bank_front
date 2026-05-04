@@ -1,31 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { QuestApi } from '../api';
-import QuestTable from '../components/QuestTable';
-import QuestList from "../components/QuestList";
-import { getUserRole } from "../utils/authUtils";
+import React, {useEffect, useState} from "react";
+import {
+    VStack,
+    Heading,
+    Button,
+    Alert,
+    Box,
+    Text,
+} from "@chakra-ui/react";
+import {QuestApi} from "../api";
+import QuestList from "../features/QuestList";
+import {getUserRole} from "../utils/authUtils";
+
+const isAdminRole = (role) =>
+    Array.isArray(role) ? role.includes("ROLE_ADMIN") : role === "ROLE_ADMIN";
+
+const AdminPanel = ({onGenerate, loading}) => (
+    <Box
+        p={4}
+        bg="green.50"
+        borderRadius="xl"
+        border="1px solid"
+        borderColor="green.200"
+    >
+        <Heading size="sm" color="green.800" mb={3}>Панель управления (Админ)</Heading>
+        <Button
+            colorPalette="green"
+            onClick={onGenerate}
+            loading={loading}
+            size="sm"
+        >
+            Сгенерировать новый квест
+        </Button>
+    </Box>
+);
 
 const QuestPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [quests, setQuests] = useState([]);
 
-    const userRole = getUserRole();
-    const isAdmin = Array.isArray(userRole) ? userRole.includes("ROLE_ADMIN") : userRole === "ROLE_ADMIN";
-
-    const fetchQuests = async () => {
-        setLoading(true);
-        try {
-            const data = await QuestApi.getUserQuests();
-            setQuests(data);
-        } catch (err) {
-            setError("Не удалось загрузить квесты");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const isAdmin = isAdminRole(getUserRole());
 
     useEffect(() => {
-        fetchQuests();
+        setLoading(true);
+        QuestApi.getUserQuests()
+            .then(setQuests)
+            .catch(() => setError("Не удалось загрузить квесты"))
+            .finally(() => setLoading(false));
     }, []);
 
     const handleCreateRandomQuest = async () => {
@@ -41,37 +62,38 @@ const QuestPage = () => {
         }
     };
 
-    // ЛОГИКА ЗАГОЛОВКА: Считаем суммарный прогресс
-    const totalProgress = quests.reduce((sum, q) => sum + (q.userProgress || 0), 0);
-    const dynamicTitle = totalProgress === 0 ? "Доступные квесты" : "Текущий прогресс";
+    const totalProgress = quests.reduce(
+        (sum, q) => sum + Number(q.userProgress || 0),
+        0
+    );
+    const sectionTitle = totalProgress === 0 ? "Доступные квесты" : "Текущий прогресс";
 
     return (
-        <div className="component-container">
-            <h2>Квесты</h2>
+        <VStack gap={6} align="stretch">
+            <Heading size="lg">Квесты</Heading>
 
             {isAdmin && (
-                <div style={{ marginBottom: '20px', padding: '15px', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-                    <h4 style={{ margin: '0 0 10px 0', color: '#166534' }}>Панель управления (Админ)</h4>
-                    <button onClick={handleCreateRandomQuest} disabled={loading} className="btn-success">
-                        {loading ? 'Генерация...' : 'Сгенерировать новый квест'}
-                    </button>
-                </div>
+                <AdminPanel onGenerate={handleCreateRandomQuest} loading={loading}/>
             )}
 
-            {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+            {error && (
+                <Alert.Root status="error" borderRadius="lg">
+                    <Alert.Indicator/>
+                    <Alert.Content>
+                        <Alert.Title>{error}</Alert.Title>
+                    </Alert.Content>
+                </Alert.Root>
+            )}
 
-            <section>
-                <h3>{dynamicTitle}</h3>
+            <Box>
+                <Heading size="md" mb={2}>{sectionTitle}</Heading>
                 {quests.length > 0 ? (
-                    <>
-                        {/*<QuestTable quests={quests} />*/}
-                        <QuestList quests={quests} />
-                    </>
+                    <QuestList quests={quests}/>
                 ) : (
-                    <p>У вас пока нет активных квестов. Загляните позже!</p>
+                    <Text color="gray.500">У вас пока нет активных квестов. Загляните позже!</Text>
                 )}
-            </section>
-        </div>
+            </Box>
+        </VStack>
     );
 };
 
