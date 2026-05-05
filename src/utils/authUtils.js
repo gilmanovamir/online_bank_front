@@ -15,7 +15,7 @@ export const getUserRole = () => {
 
 export const getDeviceId = () => {
     let deviceId = localStorage.getItem("deviceId");
-    if (!deviceId || deviceId === "undefined"){
+    if (!deviceId || deviceId === "undefined") {
         deviceId = crypto.randomUUID()
         localStorage.setItem("deviceId", deviceId)
     }

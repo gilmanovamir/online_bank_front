@@ -1,17 +1,16 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     VStack,
     Input,
     Button,
     Box,
     Field,
-    Heading,
-    NativeSelect,
+    Heading
 } from '@chakra-ui/react';
-import { PARTNER_CATEGORIES } from "../model/constants";
+import {PartnerApi} from "../api";
 
 // Вспомогательный компонент для секций формы
-const FormSection = ({ title, children }) => (
+const FormSection = ({title, children}) => (
     <Box>
         <Heading size="sm" mb={3} color="gray.600">{title}</Heading>
         <VStack gap={4} align="stretch">
@@ -20,50 +19,164 @@ const FormSection = ({ title, children }) => (
     </Box>
 );
 
-const PayForm = ({ values, onChange, onSubmit, loading, accounts = [] }) => {
+const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
     // Безопасный доступ к вложенным свойствам
     const senderAccount = values?.senderInfo?.accountNumberFrom || "";
     const serviceName = values?.serviceInfo?.partnerName || "";
+    const [query, setQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState("");
+    const [selected, setSelected] = useState(false);
+    const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+    const [suggestions, setSuggestions] = useState([]);
+
+    useEffect(() => {
+        if (!debouncedQuery || selected) return;
+
+        setLoadingSuggestions(true);
+
+        PartnerApi.findByContainingName(debouncedQuery)
+            .then((data) => {
+                setSuggestions(data);
+            })
+            .catch(() => setSuggestions([]))
+            .finally(() => setLoadingSuggestions(false));
+    }, [debouncedQuery, selected]);
+
+    useEffect(() => {
+        setQuery(serviceName);
+    }, [serviceName]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setDebouncedQuery(query);
+        }, 300); // задержка 300мс
+
+        return () => clearTimeout(timeout);
+    }, [query]);
+
+    useEffect(() => {
+        if (!debouncedQuery || selected) {
+            setSuggestions([]);
+            return;
+        }
+
+        let active = true;
+
+        PartnerApi.findByContainingName(debouncedQuery)
+            .then((data) => {
+                if (active) setSuggestions(data);
+            })
+            .catch(() => {
+                if (active) setSuggestions([]);
+            });
+
+        return () => {
+            active = false;
+        };
+    }, [debouncedQuery, selected]);
+
+    useEffect(() => {
+        if (!query) {
+            setSelected(false);
+        }
+    }, [query]);
 
     return (
         <Box as="form" onSubmit={onSubmit}>
             <VStack gap={8} align="stretch">
 
                 <FormSection title="Данные отправителя">
-                    <Field.Root required>
-                        <Field.Label fontSize="sm">Счёт списания</Field.Label>
-                        <NativeSelect.Root>
-                            <NativeSelect.Field
-                                name="senderInfo.accountNumberFrom"
-                                value={senderAccount}
-                                onChange={onChange}
-                            >
-                                <option value="">Выберите счёт списания</option>
-                                {accounts.map((acc) => (
-                                    <option key={acc.accountNumber} value={acc.accountNumber}>
-                                        {acc.accountNumber} — {acc.balance} {acc.currencyCode}
-                                    </option>
-                                ))}
-                            </NativeSelect.Field>
-                        </NativeSelect.Root>
-                    </Field.Root>
-                </FormSection>
+                    <Field.Root required w="full">
+                        <Field.Label fontSize="sm">Партнёр</Field.Label>
 
-                <FormSection title="Информация об услуге">
-                    <Field.Root required>
-                        <Field.Label fontSize="sm">Название сервиса</Field.Label>
-                        <Input
-                            name="serviceInfo.partnerName"
-                            placeholder="Например: Ростелеком"
-                            value={serviceName}
-                            onChange={onChange}
-                        />
+                        <Box position="relative" w="full">
+                            <Input
+                                w="full"
+                                value={query}
+                                onChange={(e) => {
+                                    setQuery(e.target.value);
+                                    setSelected(false);
+                                }}
+                                onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+                                placeholder="Введите наименование сервиса"
+                                autoComplete="off"
+                            />
+
+                            {suggestions.length > 0 && (
+                                <Box
+                                    position="absolute"
+                                    top="100%"
+                                    left="0"
+                                    right="0"
+                                    mt={2}
+                                    bg="white"
+                                    border="1px solid"
+                                    borderColor="gray.200"
+                                    borderRadius="lg"
+                                    zIndex="20"
+                                    boxShadow="lg"
+                                    maxH="220px"
+                                    overflowY="auto"
+                                    w="full"
+                                >
+                                    {suggestions.map((p, index) => (
+                                        <Box
+                                            key={p.id}
+                                            px={3}
+                                            py={2}
+                                            fontSize="sm"
+                                            _hover={{bg: "gray.100"}}
+                                            cursor="pointer"
+                                            borderBottom={index !== suggestions.length - 1 ? "1px solid" : "none"}
+                                            borderColor="gray.100"
+                                            onMouseDown={() => {
+                                                setSelected(true)
+
+                                                setQuery(p.name);
+                                                setSuggestions([]);
+
+                                                onChange({
+                                                    target: {
+                                                        name: "serviceInfo.partnerName",
+                                                        value: p.name
+                                                    }
+                                                });
+                                            }}
+                                        >
+                                            {p.name}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            )}
+
+                            {debouncedQuery && suggestions.length === 0 && !selected && (
+                                <Box
+                                    position="absolute"
+                                    top="100%"
+                                    left="0"
+                                    right="0"
+                                    mt={2}
+                                    bg="white"
+                                    border="1px solid"
+                                    borderColor="gray.200"
+                                    borderRadius="lg"
+                                    zIndex="20"
+                                    boxShadow="lg"
+                                    px={3}
+                                    py={2}
+                                    fontSize="sm"
+                                    color="gray.400"
+                                >
+                                    Ничего не найдено
+                                </Box>
+                            )}
+                        </Box>
                     </Field.Root>
                 </FormSection>
 
                 <FormSection title="Детали платежа">
                     <Field.Root required>
-                        <Field.Label fontSize="sm">Сумма</Field.Label>
+                        <Field.Label fontSize="sm">Сумма (в рублях)</Field.Label>
                         <Input
                             type="number"
                             step="0.01"
@@ -73,24 +186,10 @@ const PayForm = ({ values, onChange, onSubmit, loading, accounts = [] }) => {
                             onChange={onChange}
                         />
                     </Field.Root>
-
-                    {/*<Field.Root>*/}
-                    {/*    <Field.Label fontSize="sm">Категория</Field.Label>*/}
-                    {/*    <NativeSelect.Root>*/}
-                    {/*        <NativeSelect.Field*/}
-                    {/*            name="category"*/}
-                    {/*            value={values.category}*/}
-                    {/*            onChange={onChange}*/}
-                    {/*        >*/}
-                    {/*            {PARTNER_CATEGORIES.map((c) => (*/}
-                    {/*                <option key={c} value={c}>{c}</option>*/}
-                    {/*            ))}*/}
-                    {/*        </NativeSelect.Field>*/}
-                    {/*    </NativeSelect.Root>*/}
-                    {/*</Field.Root>*/}
                 </FormSection>
-
                 <Button
+                    variant="outline"
+                    alignSelf="flex-end"
                     type="submit"
                     colorPalette="blue"
                     loading={loading}

@@ -3,7 +3,7 @@ import {PartnerApi} from '../api';
 import {useForm} from '../hooks/useForm';
 import PartnerCreateForm from '../features/PartnerCreateForm';
 import PartnerList from "../features/PartnerList";
-import { getUserRole } from "../utils/authUtils"; // 1. Импортируем утилиту
+import {getUserRole} from "../utils/authUtils"; // 1. Импортируем утилиту
 
 const PartnerPage = () => {
     const [partners, setPartners] = useState([]);
@@ -73,7 +73,8 @@ const PartnerPage = () => {
                         onSubmit={handleSubmit}
                         loading={loading}
                     />
-                    {error && <div className="error-message" style={{color: 'red', marginTop: '10px'}}>Ошибка: {error}</div>}
+                    {error &&
+                        <div className="error-message" style={{color: 'red', marginTop: '10px'}}>Ошибка: {error}</div>}
                     {success && (
                         <div className="success-message" style={{color: 'green', marginTop: '15px'}}>
                             ✓ Партнер успешно создан!
@@ -87,8 +88,10 @@ const PartnerPage = () => {
 
             {/* 4. Админское примечание скрываем полностью от обычных пользователей */}
             {isAdmin && (
-                <div className="admin-note" style={{marginTop: '30px', padding: '15px', border: '1px solid #eee', color: '#666'}}>
-                    <p><strong>Панель администратора:</strong> Вы можете добавлять партнеров, которые будут отображаться в общем списке для всех клиентов банка.</p>
+                <div className="admin-note"
+                     style={{marginTop: '30px', padding: '15px', border: '1px solid #eee', color: '#666'}}>
+                    <p><strong>Панель администратора:</strong> Вы можете добавлять партнеров, которые будут отображаться
+                        в общем списке для всех клиентов банка.</p>
                 </div>
             )}
         </div>

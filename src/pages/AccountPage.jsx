@@ -4,7 +4,8 @@ import AccountCreateForm from "../features/AccountCreateForm";
 import AccountTable from "../features/AccountTable";
 import OperationTable from "../features/OperationTable";
 import React, {useEffect, useState} from "react";
-import { getUserRole } from "../utils/authUtils";
+import {getUserRole} from "../utils/authUtils";
+import {Heading} from "@chakra-ui/react";
 
 
 const userRole = getUserRole();
@@ -57,10 +58,10 @@ const AccountPage = () => {
 
     return (
         <div className="container">
-            <h2>Мои счета</h2>
+            <Heading size="lg" textAlign="center" >Управление счетами</Heading>
 
             {/* Секция создания счета */}
-            <div className="card" style={{ marginBottom: '20px' }}>
+            <div className="card" style={{marginBottom: '20px'}}>
                 <AccountCreateForm
                     currencyCode={currencyCode}
                     setCurrencyCode={setCurrencyCode}
@@ -71,14 +72,8 @@ const AccountPage = () => {
 
             {/* Основная таблица счетов */}
             <section className="accounts-section">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <h3>Список активных счетов</h3>
-                    {/*<button*/}
-                    {/*    className="btn-refresh"*/}
-                    {/*    onClick={() => request(AccountApi.findAllByHolder, setAccounts)}*/}
-                    {/*>*/}
-                    {/*    Обновить данные*/}
-                    {/*</button>*/}
                 </div>
 
                 {accounts.length > 0 ? (
@@ -90,13 +85,11 @@ const AccountPage = () => {
 
             {error && <p className="error-message">{error}</p>}
             {loading && <p className="loading-spinner">Обработка запроса...</p>}
-
-            {/* История операций (появляется под таблицей счетов) */}
             {selectedAcc && (
-                <section className="history-section" style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #eee' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <h3>История по счету: <span style={{ color: '#007bff' }}>{selectedAcc}</span></h3>
-                        {/*<button className="btn-close" onClick={() => setSelectedAcc(null)}>Закрыть X</button>*/}
+                <section className="history-section"
+                         style={{marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #eee'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                        <h3>История по счету: <span style={{color: '#007bff'}}>{selectedAcc}</span></h3>
                     </div>
                     {operations.length > 0 ? (
                         <OperationTable operations={operations}/>

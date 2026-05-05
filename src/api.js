@@ -59,7 +59,6 @@ api.interceptors.response.use(
 
             if (refreshToken) {
                 try {
-                    // ВАЖНО: твой silentLogin в AuthenticationService ожидает token и deviceId
                     const res = await axios.post(`${API_URL}/api/silent`, {
                         token: refreshToken,
                         deviceId: deviceId
@@ -174,7 +173,9 @@ export const CurrencyApi = {
 
 export const PartnerApi = {
     createPartner: (data) => request("post", "/api/bank-partner", data),
-    getAllPartners: () => request("get", "/api/bank-partner")
+    getAllPartners: () => request("get", "/api/bank-partner"),
+    findByContainingName: (name) =>
+        request("get", `/api/bank-partner/find-by-containing-name?name=${encodeURIComponent(name)}`)
 };
 
 export const PayApi = {

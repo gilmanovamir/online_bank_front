@@ -7,7 +7,7 @@ import {
 
 const CURRENCIES = ["USD", "RUB", "CNY"];
 
-const AccountCreateForm = ({ currencyCode, setCurrencyCode, onCreate, loading }) => (
+const AccountCreateForm = ({currencyCode, setCurrencyCode, onCreate, loading}) => (
     <VStack gap={4} align="stretch">
         <Field.Root>
             <Field.Label fontSize="sm">Валюта</Field.Label>
@@ -17,11 +17,10 @@ const AccountCreateForm = ({ currencyCode, setCurrencyCode, onCreate, loading })
                         <option key={code} value={code}>{code}</option>
                     ))}
                 </NativeSelect.Field>
-                <NativeSelect.Indicator />
+                <NativeSelect.Indicator/>
             </NativeSelect.Root>
         </Field.Root>
-
-        <Button colorPalette="blue" onClick={onCreate} loading={loading} w="full">
+        <Button variant="outline" alignSelf="flex-end"  colorPalette="blue" onClick={onCreate} loading={loading} w="full">
             Создать счёт
         </Button>
     </VStack>

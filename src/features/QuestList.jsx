@@ -12,15 +12,8 @@ import {
 const formatDate = (value) =>
     value ? new Date(value).toLocaleDateString("ru-RU") : "—";
 
-const QuestCard = ({ quest }) => {
-    console.log(quest);
-    const current = Number(quest.userProgress) || 0;
-    const target = Number(quest.necessaryToReward);
-
-    const progressPercent =
-        target > 0
-            ? Math.min((current / target) * 100, 100)
-            : 0;
+const QuestCard = ({quest}) => {
+    const progressPercent = Math.min(Number(quest.progressInPercent) || 0, 100);
 
     return (
         <Box
@@ -46,14 +39,9 @@ const QuestCard = ({ quest }) => {
             <VStack align="stretch" gap={3}>
                 <Heading size="sm" pr={quest.isComplete ? 24 : 0}>{quest.name}</Heading>
 
-                <HStack gap={4} flexWrap="wrap">
-                    <Text fontSize="sm" color="gray.600">
-                        Категория: <Text as="b" color="gray.800">{quest.questCategory}</Text>
-                    </Text>
-                    <Text fontSize="sm" color="gray.600">
-                        Награда: <Text as="b" color="white">{quest.pointReward} бонусов</Text>
-                    </Text>
-                </HStack>
+                <Text fontSize="sm" color="gray.600">
+                    Категория: <Text as="b" color="gray.800">{quest.questCategory}</Text>
+                </Text>
 
                 <Box>
                     <HStack justify="space-between" mb={1}>
@@ -69,7 +57,7 @@ const QuestCard = ({ quest }) => {
                         borderRadius="full"
                     >
                         <Progress.Track borderRadius="full">
-                            <Progress.Range />
+                            <Progress.Range/>
                         </Progress.Track>
                     </Progress.Root>
                 </Box>
@@ -82,13 +70,13 @@ const QuestCard = ({ quest }) => {
     );
 };
 
-const QuestList = ({ quests }) => {
+const QuestList = ({quests}) => {
     if (!quests?.length) return null;
 
     return (
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} mt={4}>
+        <SimpleGrid columns={{base: 1, md: 2}} gap={4} mt={4}>
             {quests.map((quest) => (
-                <QuestCard key={`${quest.name}-${quest.questExpireDate}`} quest={quest} />
+                <QuestCard key={`${quest.name}-${quest.questExpireDate}`} quest={quest}/>
             ))}
         </SimpleGrid>
     );

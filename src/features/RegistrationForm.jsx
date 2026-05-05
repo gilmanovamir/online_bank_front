@@ -1,10 +1,8 @@
 import {
     VStack,
-    Input,
     Button,
     SimpleGrid,
     Box,
-    Field,
 } from '@chakra-ui/react';
 
 import {FormField} from "../components/FormField";
@@ -50,13 +48,13 @@ const FIELDS = [
         name: 'password',
         label: 'Пароль',
         type: 'password',
-        placeholder: '********',
+        placeholder: '*****',
         required: true,
         colSpan: 2,
     },
 ];
 
-const RegistrationForm = ({ values, onChange, onSubmit, onAdminSubmit, loading, showAdminButton }) => (
+const RegistrationForm = ({values, onChange, onSubmit, onAdminSubmit, loading, showAdminButton}) => (
     <Box as="form" onSubmit={onSubmit}>
         <VStack gap={4} align="stretch">
             <SimpleGrid columns={2} gap={4}>

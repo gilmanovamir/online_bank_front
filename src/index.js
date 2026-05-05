@@ -10,7 +10,7 @@ root.render(
     <React.StrictMode>
         {/* Провайдер должен ОБЕРТЫВАТЬ App */}
         <ChakraProvider value={defaultSystem}>
-            <App />
+            <App/>
         </ChakraProvider>
     </React.StrictMode>
 );

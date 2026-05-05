@@ -3,7 +3,7 @@ import {
     Badge,
 } from "@chakra-ui/react";
 
-const QuestTable = ({ quests }) => {
+const QuestTable = ({quests}) => {
     if (!quests?.length) return null;
 
     return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     Box,
     Flex,
@@ -21,51 +21,59 @@ import QuestPage from "./pages/QuestPage";
 import TestPage from "./pages/TestPage";
 import CodePage from "./pages/CodePage";
 
-import { TokenService } from "./utils/tokenService";
-import { getUserRole } from "./utils/authUtils";
+import {TokenService} from "./utils/tokenService";
+import {getUserRole} from "./utils/authUtils";
 
 function App() {
     const userRole = getUserRole();
     const isAuthenticated = !!TokenService.getRefresh();
 
+    const savedPage = localStorage.getItem("lastPage");
+
     const [currentComponent, setCurrentComponent] = useState(
-        isAuthenticated ? 'account' : 'authentication'
+        isAuthenticated ? (savedPage || 'account') : 'authentication'
     );
+
+    const handleNavigate = (page) => {
+        setCurrentComponent(page);
+        localStorage.setItem("lastPage", page);
+    };
 
     const handleLogout = () => {
         TokenService.clear();
         window.location.reload();
+
     };
 
     const menuGroups = [
         {
             title: "Пользователь",
             items: [
-                ...(!isAuthenticated ? [{ id: 'authentication', label: 'Вход' }] : []),
-                { id: 'account', label: 'Мои счета' },
+                ...(!isAuthenticated ? [{id: 'authentication', label: 'Вход'}] : []),
+                {id: 'account', label: 'Мои счета'},
             ]
         },
         {
             title: "Финансы",
             items: [
-                { id: 'operation', label: 'Операции' },
-                { id: 'pay', label: 'Платежи' },
-                { id: 'bonusAccount', label: 'Бонусы' },
-                { id: 'currency', label: 'Валюты' },
+                {id: 'operation', label: 'Операции'},
+                {id: 'pay', label: 'Платежи'},
+                {id: 'bonusAccount', label: 'Бонусы'},
+                {id: 'currency', label: 'Валюты'},
             ]
         },
         {
             title: "Сервисы",
             items: [
-                { id: 'partner', label: 'Партнеры' },
-                { id: 'quest', label: 'Квесты' },
+                {id: 'partner', label: 'Партнеры'},
+                {id: 'quest', label: 'Квесты'},
             ]
         },
         {
             title: "Админ",
             items: [
-                { id: 'code', label: 'Коды' },
-                { id: 'test', label: 'Тесты' },
+                {id: 'code', label: 'Коды'},
+                {id: 'test', label: 'Тесты'},
             ]
         }
     ];
@@ -79,11 +87,12 @@ function App() {
         const isAdmin = userRole === "ROLE_ADMIN";
 
         if (isAuthenticated && (currentComponent === 'authentication' || currentComponent === 'registration')) {
-            return <AccountPage />;
+            return <AccountPage/>;
         }
 
         switch (currentComponent) {
-            case 'account': return <AccountPage />;
+            case 'account':
+                return <AccountPage/>;
             case 'authentication':
             case 'registration':
                 return <AuthenticationPage
@@ -91,15 +100,24 @@ function App() {
                     onSuccess={() => setCurrentComponent('account')}
                     userRole={userRole}
                 />;
-            case 'bonusAccount': return <BonusPage />;
-            case 'currency': return <CurrencyPage />;
-            case 'operation': return <OperationPage />;
-            case 'partner': return <PartnerPage />;
-            case 'pay': return <PayPage />;
-            case 'quest': return <QuestPage />;
-            case 'test': return isAdmin ? <TestPage /> : null;
-            case 'code': return isAdmin ? <CodePage /> : null;
-            default: return isAuthenticated ? <AccountPage /> : <AuthenticationPage />;
+            case 'bonusAccount':
+                return <BonusPage/>;
+            case 'currency':
+                return <CurrencyPage/>;
+            case 'operation':
+                return <OperationPage/>;
+            case 'partner':
+                return <PartnerPage/>;
+            case 'pay':
+                return <PayPage/>;
+            case 'quest':
+                return <QuestPage/>;
+            case 'test':
+                return isAdmin ? <TestPage/> : null;
+            case 'code':
+                return isAdmin ? <CodePage/> : null;
+            default:
+                return isAuthenticated ? <AccountPage/> : <AuthenticationPage/>;
         }
     };
 
@@ -144,9 +162,9 @@ function App() {
                                             variant={currentComponent === item.id ? "solid" : "ghost"}
                                             bg={currentComponent === item.id ? "blue.600" : "transparent"}
                                             color={currentComponent === item.id ? "white" : "gray.700"}
-                                            _hover={{ bg: currentComponent === item.id ? "blue.700" : "gray.100" }}
+                                            _hover={{bg: currentComponent === item.id ? "blue.700" : "gray.100"}}
                                             justifyContent="flex-start"
-                                            onClick={() => setCurrentComponent(item.id)}
+                                            onClick={() => handleNavigate(item.id)}
                                             size="sm"
                                         >
                                             {item.label}
@@ -160,11 +178,12 @@ function App() {
                     {/* LOGOUT SECTION */}
                     {isAuthenticated && (
                         <Box pt={4}>
-                            <Separator mb={4} />
+                            <Separator mb={4}/>
                             <Button
                                 variant="ghost"
                                 color="red.500"
-                                _hover={{ bg: "red.50" }}
+                                flex="1"
+                                _hover={{bg: "red.50"}}
                                 w="full"
                                 justifyContent="flex-start"
                                 onClick={handleLogout}

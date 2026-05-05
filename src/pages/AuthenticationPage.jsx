@@ -55,8 +55,14 @@ const AlreadyAuthenticatedView = ({userRole, resendStatus, loading, onSuccess, o
                 <Text>Вы вошли как <b>{userRole || "Пользователь"}</b></Text>
                 {resendStatus && <Text color="blue.500" fontSize="sm">{resendStatus}</Text>}
                 <Flex gap={3} w="full">
-                    <Button colorPalette="blue" flex="1" onClick={onSuccess}>Кабинет</Button>
-                    <Button variant="outline" colorPalette="red" flex="1" onClick={onLogout} loading={loading}>
+                    <Button
+                        variant="outline"
+                        colorPalette="red"
+                        borderColor="gray.400"
+                        flex="1"
+                        onClick={onLogout}
+                        loading={loading}
+                    >
                         Выход
                     </Button>
                 </Flex>

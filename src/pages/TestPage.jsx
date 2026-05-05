@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {TestApi} from '../api';
 
-import { getUserRole } from "../utils/authUtils";
+import {getUserRole} from "../utils/authUtils";
+
 const TestPage = () => {
     const userRole = getUserRole();
     const isAdmin = userRole === "ROLE_ADMIN";

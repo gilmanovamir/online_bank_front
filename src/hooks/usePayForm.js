@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 export const usePayForm = () => {
     const initialState = {
@@ -19,7 +19,7 @@ export const usePayForm = () => {
     const [values, setValues] = useState(initialState);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         // Если имя поля содержит точку, например "senderInfo.name"
         if (name.includes('.')) {
@@ -42,5 +42,5 @@ export const usePayForm = () => {
 
     const reset = () => setValues(initialState);
 
-    return { values, handleChange, reset };
+    return {values, handleChange, reset};
 };

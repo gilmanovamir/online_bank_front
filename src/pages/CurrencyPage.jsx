@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     VStack,
     HStack,
@@ -12,17 +12,17 @@ import {
     Center,
     Field,
 } from "@chakra-ui/react";
-import { CurrencyApi } from "../api";
-import { useForm } from "../hooks/useForm";
+import {CurrencyApi} from "../api";
+import {useForm} from "../hooks/useForm";
 import CurrencySelect from "../features/CurrencySelect";
-import { getUserRole } from "../utils/authUtils";
+import {getUserRole} from "../utils/authUtils";
 
 const isAdminRole = (role) =>
     Array.isArray(role) ? role.includes("ROLE_ADMIN") : role === "ROLE_ADMIN";
 
 // ─── Подкомпоненты результата ─────────────────────────────────────────────────
 
-const ConvertResult = ({ data }) => {
+const ConvertResult = ({data}) => {
     const rate = data.providedAmountInBaseCurrency
         ? (data.targetConvertedAmount / data.providedAmountInBaseCurrency).toFixed(4)
         : "—";
@@ -44,7 +44,7 @@ const ConvertResult = ({ data }) => {
     );
 };
 
-const RateResult = ({ data }) => (
+const RateResult = ({data}) => (
     <VStack gap={1} textAlign="center">
         <Heading size="sm" color="green.700">Курс обновлён</Heading>
         <Text fontSize="lg">
@@ -53,17 +53,17 @@ const RateResult = ({ data }) => (
     </VStack>
 );
 
-const FallbackResult = ({ data }) => (
+const FallbackResult = ({data}) => (
     <Box as="pre" fontSize="xs" overflowX="auto" color="gray.700">
         {JSON.stringify(data, null, 2)}
     </Box>
 );
 
-const ResultCard = ({ response, onClear }) => {
+const ResultCard = ({response, onClear}) => {
     const renderContent = () => {
-        if (response.providedAmountInBaseCurrency !== undefined) return <ConvertResult data={response} />;
-        if (response.rate) return <RateResult data={response} />;
-        return <FallbackResult data={response} />;
+        if (response.providedAmountInBaseCurrency !== undefined) return <ConvertResult data={response}/>;
+        if (response.rate) return <RateResult data={response}/>;
+        return <FallbackResult data={response}/>;
     };
 
     return (
@@ -80,7 +80,7 @@ const ResultCard = ({ response, onClear }) => {
 
 // ─── Обёртка секции формы ─────────────────────────────────────────────────────
 
-const FormSection = ({ title, onSubmit, children }) => (
+const FormSection = ({title, onSubmit, children}) => (
     <Box
         as="form"
         onSubmit={onSubmit}
@@ -106,9 +106,9 @@ const CurrencyPage = () => {
 
     const isAdmin = isAdminRole(getUserRole());
 
-    const createForm  = useForm({ baseCurrency: "USD", targetCurrency: "RUB", rate: "" });
-    const convertForm = useForm({ baseCurrency: "USD", targetCurrency: "RUB", providedAmountInBaseCurrency: "" });
-    const findForm    = useForm({ baseCurrency: "USD", targetCurrency: "RUB" });
+    const createForm = useForm({baseCurrency: "USD", targetCurrency: "RUB", rate: ""});
+    const convertForm = useForm({baseCurrency: "USD", targetCurrency: "RUB", providedAmountInBaseCurrency: ""});
+    const findForm = useForm({baseCurrency: "USD", targetCurrency: "RUB"});
 
     const execute = async (requestFn) => {
         setLoading(true);
@@ -135,8 +135,10 @@ const CurrencyPage = () => {
                     execute(() => CurrencyApi.createExchangeRate(createForm.values));
                 }}
             >
-                <CurrencySelect label="Базовая" name="baseCurrency" value={createForm.values.baseCurrency} onChange={createForm.handleChange} />
-                <CurrencySelect label="Котируемая" name="targetCurrency" value={createForm.values.targetCurrency} onChange={createForm.handleChange} />
+                <CurrencySelect label="Базовая" name="baseCurrency" value={createForm.values.baseCurrency}
+                                onChange={createForm.handleChange}/>
+                <CurrencySelect label="Котируемая" name="targetCurrency" value={createForm.values.targetCurrency}
+                                onChange={createForm.handleChange}/>
                 <Field.Root required>
                     <Field.Label fontSize="sm">Курс</Field.Label>
                     <Input
@@ -163,8 +165,10 @@ const CurrencyPage = () => {
                     }));
                 }}
             >
-                <CurrencySelect label="Из" name="baseCurrency" value={convertForm.values.baseCurrency} onChange={convertForm.handleChange} />
-                <CurrencySelect label="В" name="targetCurrency" value={convertForm.values.targetCurrency} onChange={convertForm.handleChange} />
+                <CurrencySelect label="Из" name="baseCurrency" value={convertForm.values.baseCurrency}
+                                onChange={convertForm.handleChange}/>
+                <CurrencySelect label="В" name="targetCurrency" value={convertForm.values.targetCurrency}
+                                onChange={convertForm.handleChange}/>
                 <Field.Root required>
                     <Field.Label fontSize="sm">Сумма</Field.Label>
                     <Input
@@ -176,7 +180,8 @@ const CurrencyPage = () => {
                         w="32"
                     />
                 </Field.Root>
-                <Button type="submit" colorPalette="teal" loading={loading}>Рассчитать</Button>
+                <Button type="submit" variant="outline" colorPalette="blue" loading={loading}
+                        alignSelf="flex-end">Рассчитать</Button>
             </FormSection>
 
             {/* Форма 3: Поиск курса */}
@@ -187,8 +192,10 @@ const CurrencyPage = () => {
                     execute(() => CurrencyApi.findRate(findForm.values.baseCurrency, findForm.values.targetCurrency));
                 }}
             >
-                <CurrencySelect label="Базовая" name="baseCurrency" value={findForm.values.baseCurrency} onChange={findForm.handleChange} />
-                <CurrencySelect label="Котируемая" name="targetCurrency" value={findForm.values.targetCurrency} onChange={findForm.handleChange} />
+                <CurrencySelect label="Базовая" name="baseCurrency" value={findForm.values.baseCurrency}
+                                onChange={findForm.handleChange}/>
+                <CurrencySelect label="Котируемая" name="targetCurrency" value={findForm.values.targetCurrency}
+                                onChange={findForm.handleChange}/>
                 <Button type="submit" variant="outline" colorPalette="blue" loading={loading} alignSelf="flex-end">
                     Найти
                 </Button>
@@ -197,14 +204,14 @@ const CurrencyPage = () => {
             {/* Результаты */}
             {loading && (
                 <Center py={4}>
-                    <Spinner size="sm" color="blue.500" />
+                    <Spinner size="sm" color="blue.500"/>
                     <Text ml={3} fontSize="sm" color="gray.500">Обработка запроса...</Text>
                 </Center>
             )}
 
             {error && (
                 <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator />
+                    <Alert.Indicator/>
                     <Alert.Content>
                         <Alert.Title>{error}</Alert.Title>
                     </Alert.Content>
@@ -212,7 +219,7 @@ const CurrencyPage = () => {
             )}
 
             {response && (
-                <ResultCard response={response} onClear={() => setResponse(null)} />
+                <ResultCard response={response} onClear={() => setResponse(null)}/>
             )}
         </VStack>
     );

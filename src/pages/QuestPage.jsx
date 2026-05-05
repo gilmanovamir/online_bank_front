@@ -15,20 +15,9 @@ const isAdminRole = (role) =>
     Array.isArray(role) ? role.includes("ROLE_ADMIN") : role === "ROLE_ADMIN";
 
 const AdminPanel = ({onGenerate, loading}) => (
-    <Box
-        p={4}
-        bg="green.50"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="green.200"
-    >
+    <Box p={4} bg="green.50" borderRadius="xl" border="1px solid" borderColor="green.200">
         <Heading size="sm" color="green.800" mb={3}>Панель управления (Админ)</Heading>
-        <Button
-            colorPalette="green"
-            onClick={onGenerate}
-            loading={loading}
-            size="sm"
-        >
+        <Button colorPalette="green" onClick={onGenerate} loading={loading} size="sm">
             Сгенерировать новый квест
         </Button>
     </Box>
@@ -62,36 +51,28 @@ const QuestPage = () => {
         }
     };
 
-    const totalProgress = quests.reduce(
-        (sum, q) => sum + Number(q.userProgress || 0),
-        0
-    );
+    const totalProgress = quests.reduce((sum, q) => sum + Number(q.userProgress || 0), 0);
     const sectionTitle = totalProgress === 0 ? "Доступные квесты" : "Текущий прогресс";
 
     return (
         <VStack gap={6} align="stretch">
-            <Heading size="lg">Квесты</Heading>
+            <Heading size="lg" textAlign="center">Квесты</Heading>
 
-            {isAdmin && (
-                <AdminPanel onGenerate={handleCreateRandomQuest} loading={loading}/>
-            )}
+            {isAdmin && <AdminPanel onGenerate={handleCreateRandomQuest} loading={loading}/>}
 
             {error && (
                 <Alert.Root status="error" borderRadius="lg">
                     <Alert.Indicator/>
-                    <Alert.Content>
-                        <Alert.Title>{error}</Alert.Title>
-                    </Alert.Content>
+                    <Alert.Content><Alert.Title>{error}</Alert.Title></Alert.Content>
                 </Alert.Root>
             )}
 
             <Box>
                 <Heading size="md" mb={2}>{sectionTitle}</Heading>
-                {quests.length > 0 ? (
-                    <QuestList quests={quests}/>
-                ) : (
-                    <Text color="gray.500">У вас пока нет активных квестов. Загляните позже!</Text>
-                )}
+                {quests.length > 0
+                    ? <QuestList quests={quests}/>
+                    : <Text color="gray.500">У вас пока нет активных квестов. Загляните позже!</Text>
+                }
             </Box>
         </VStack>
     );

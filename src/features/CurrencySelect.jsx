@@ -1,7 +1,7 @@
-import { Field, NativeSelect } from "@chakra-ui/react";
-import { CURRENCY_CODES } from "../model/constants";
+import {Field, NativeSelect} from "@chakra-ui/react";
+import {CURRENCY_CODES} from "../model/constants";
 
-const CurrencySelect = ({ name, value, onChange, label }) => (
+const CurrencySelect = ({name, value, onChange, label}) => (
     <Field.Root>
         <Field.Label fontSize="sm">{label}</Field.Label>
         <NativeSelect.Root>
@@ -10,7 +10,7 @@ const CurrencySelect = ({ name, value, onChange, label }) => (
                     <option key={code} value={code}>{code}</option>
                 ))}
             </NativeSelect.Field>
-            <NativeSelect.Indicator />
+            <NativeSelect.Indicator/>
         </NativeSelect.Root>
     </Field.Root>
 );
