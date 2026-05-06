@@ -156,7 +156,7 @@ const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
                                 </Box>
                             )}
 
-                            {debouncedQuery && suggestions.length === 0 && !loadingSuggestions(
+                            {debouncedQuery && suggestions.length === 0 && !loadingSuggestions &&(
                                 <Box
                                     position="absolute"
                                     top="100%"
