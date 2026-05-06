@@ -60,7 +60,7 @@ api.interceptors.response.use(
             if (refreshToken) {
                 try {
                     const res = await axios.post(`${API_URL}/api/silent`, {
-                        token: refreshToken,
+                        refreshToken: refreshToken,
                         deviceId: deviceId
                     });
 

@@ -44,43 +44,27 @@ const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
     }, [debouncedQuery, selected]);
 
     useEffect(() => {
-        setQuery(serviceName);
-    }, [serviceName]);
-
-    useEffect(() => {
         const timeout = setTimeout(() => {
             setDebouncedQuery(query);
-        }, 300); // задержка 300мс
+        }, 300);
 
         return () => clearTimeout(timeout);
     }, [query]);
 
     useEffect(() => {
-        if (!debouncedQuery || selected) {
+        if (!debouncedQuery) {
             setSuggestions([]);
             return;
         }
 
-        let active = true;
+        setLoadingSuggestions(true);
 
         PartnerApi.findByContainingName(debouncedQuery)
-            .then((data) => {
-                if (active) setSuggestions(data);
-            })
-            .catch(() => {
-                if (active) setSuggestions([]);
-            });
+            .then(setSuggestions)
+            .catch(() => setSuggestions([]))
+            .finally(() => setLoadingSuggestions(false));
 
-        return () => {
-            active = false;
-        };
-    }, [debouncedQuery, selected]);
-
-    useEffect(() => {
-        if (!query) {
-            setSelected(false);
-        }
-    }, [query]);
+    }, [debouncedQuery]);
 
     return (
 
@@ -153,7 +137,7 @@ const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
                                             borderBottom={index !== suggestions.length - 1 ? "1px solid" : "none"}
                                             borderColor="gray.100"
                                             onMouseDown={() => {
-                                                setSelected(true)
+                                                // setSelected(true)
 
                                                 setQuery(p.name);
                                                 setSuggestions([]);
@@ -172,7 +156,7 @@ const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
                                 </Box>
                             )}
 
-                            {debouncedQuery && suggestions.length === 0 && !selected && (
+                            {debouncedQuery && suggestions.length === 0 && !loadingSuggestions(
                                 <Box
                                     position="absolute"
                                     top="100%"

@@ -75,11 +75,14 @@ const OperationPage = () => {
             setError("Введите корректную сумму");
             return;
         }
+
         setLoading(true);
         setError(null);
+
         try {
             const result = await apiMethod({...values, amount});
             setOperations((prev) => [result, ...prev]);
+            await fetchAccounts()
         } catch (err) {
             setError(err.message);
         } finally {
@@ -106,6 +109,7 @@ const OperationPage = () => {
         try {
             const results = await OperationApi.buyCurrency({...buyValues, amount});
             setOperations((prev) => [...results, ...prev]);
+            await fetchAccounts();
         } catch (err) {
             setBuyError(err.message);
         } finally {
