@@ -11,7 +11,7 @@ export const LoginSection = ({form, onChange, onLogin, loading}) => (
     <VStack gap={4} align="stretch">
         <Field.Root required>
             <Field.Label fontSize="sm">Email</Field.Label>
-            <Input name="email" type="email" placeholder="gilmanovamir19@gmail.com" value={form.email}
+            <Input name="email" type="email" placeholder="test@gmail.com" value={form.email}
                    onChange={onChange}/>
         </Field.Root>
 

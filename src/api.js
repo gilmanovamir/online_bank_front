@@ -202,4 +202,6 @@ export const TestApi = {
     sendEmail: (email) => request("post", `/test/send-email?email=${encodeURIComponent(email)}`),
 };
 
+console.log("API_URL =", process.env.REACT_APP_API_URL);
+
 export default api;

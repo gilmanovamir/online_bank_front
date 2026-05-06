@@ -5,6 +5,7 @@ import {
     Button,
     Box,
     Field,
+    NativeSelect,
     Heading
 } from '@chakra-ui/react';
 import {PartnerApi} from "../api";
@@ -82,8 +83,30 @@ const PayForm = ({values, onChange, onSubmit, loading, accounts = []}) => {
     }, [query]);
 
     return (
+
         <Box as="form" onSubmit={onSubmit}>
             <VStack gap={8} align="stretch">
+
+
+                <FormSection title="Данные отправителя">
+                    <Field.Root required>
+                        <Field.Label fontSize="sm">Счёт списания</Field.Label>
+                        <NativeSelect.Root>
+                            <NativeSelect.Field
+                                name="senderInfo.accountNumberFrom"
+                                value={senderAccount}
+                                onChange={onChange}
+                            >
+                                <option value="">Выберите счёт списания</option>
+                                {accounts.map((acc) => (
+                                    <option key={acc.accountNumber} value={acc.accountNumber}>
+                                        {acc.accountNumber} — {acc.balance} {acc.currencyCode}
+                                    </option>
+                                ))}
+                            </NativeSelect.Field>
+                        </NativeSelect.Root>
+                    </Field.Root>
+                </FormSection>
 
                 <FormSection title="Данные отправителя">
                     <Field.Root required w="full">
