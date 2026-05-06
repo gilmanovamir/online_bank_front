@@ -48,7 +48,7 @@ const QuestCard = ({quest}) => {
                         <Text fontSize="xs" color="gray.500">
                             Прогресс: {quest.userProgress} / {quest.necessaryToReward}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">{Math.round(progressPercent)}%</Text>
+                        <Text fontSize="xs" color="gray.500">{Math.floor(progressPercent)}%</Text>
                     </HStack>
                     <Progress.Root
                         value={progressPercent}
