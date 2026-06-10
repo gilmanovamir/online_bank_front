@@ -1,7 +1,5 @@
-import {
-    Table,
-    Badge,
-} from "@chakra-ui/react";
+import {Table, Badge} from "@chakra-ui/react";
+import {formatCategory} from "../utils/localisation";// Путь к словарю
 
 const QuestTable = ({quests}) => {
     if (!quests?.length) return null;
@@ -23,7 +21,7 @@ const QuestTable = ({quests}) => {
                     {quests.map((quest) => (
                         <Table.Row key={`${quest.name}-${quest.questExpireDate}`}>
                             <Table.Cell fontWeight="medium">{quest.name}</Table.Cell>
-                            <Table.Cell>{quest.questCategory}</Table.Cell>
+                            <Table.Cell>{formatCategory(quest.questCategory)}</Table.Cell>
                             <Table.Cell textAlign="center">{quest.userProgress}</Table.Cell>
                             <Table.Cell textAlign="center">{quest.necessaryToReward}</Table.Cell>
                             <Table.Cell textAlign="center">{quest.pointReward}</Table.Cell>

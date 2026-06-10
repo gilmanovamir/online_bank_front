@@ -1,30 +1,85 @@
-import React, {useState} from 'react';
-import {TestApi} from '../api';
+import React, { useState } from "react";
+import {
+    Box,
+    Button,
+    Container,
+    Heading,
+    HStack,
+    Input,
+    Text,
+    VStack,
+    Alert,
+    Field,
+} from "@chakra-ui/react";
 
-import {getUserRole} from "../utils/authUtils";
+import { TestApi } from "../api";
+import { getUserRole } from "../utils/authUtils";
+
+// ─── Вспомогательный компонент вывода результата ─────────────────────────────
+
+const ResultDisplay = ({ response }) => {
+    if (!response) return null;
+
+    return (
+        <Box
+            mt={5}
+            p={4}
+            bg="bg.panel"
+            border="1px solid"
+            borderColor="border.muted"
+            borderRadius="lg"
+        >
+            <Heading size="sm" mb={3}>
+                Результат
+            </Heading>
+
+            {response.type === "json" && (
+                <Box
+                    as="pre"
+                    fontSize="sm"
+                    whiteSpace="pre-wrap"
+                    color="fg.default"
+                >
+                    {JSON.stringify(response.data, null, 2)}
+                </Box>
+            )}
+
+            {response.type === "text" && (
+                <Text color="fg.default">{response.data}</Text>
+            )}
+
+            {response.type === "email" && (
+                <Text color="green.500">
+                    ✓ {response.data || "Запрос обработан"}
+                </Text>
+            )}
+        </Box>
+    );
+};
+
+// ─── Основной компонент ───────────────────────────────────────────────────────
 
 const TestPage = () => {
     const userRole = getUserRole();
     const isAdmin = userRole === "ROLE_ADMIN";
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [response, setResponse] = useState(null);
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState("");
 
-    if (!isAdmin) {
-        return null;
-    }
+    if (!isAdmin) return null;
 
-    // Универсальная обертка для запросов
     const execute = async (requestFn, resultType) => {
         setLoading(true);
         setError(null);
         setResponse(null);
+
         try {
             const data = await requestFn();
-            setResponse({type: resultType, data});
+            setResponse({ type: resultType, data });
         } catch (err) {
-            setError(err.message);
+            setError(err.message || "Ошибка выполнения запроса");
         } finally {
             setLoading(false);
         }
@@ -32,65 +87,105 @@ const TestPage = () => {
 
     const onEmailSubmit = (e) => {
         e.preventDefault();
-        if (!email.trim()) return setError('Введите email');
-        execute(() => TestApi.sendEmail(email), 'email');
-        setEmail('');
+
+        if (!email.trim()) {
+            setError("Введите email");
+            return;
+        }
+
+        execute(() => TestApi.sendEmail(email), "email");
+        setEmail("");
     };
 
     return (
-        <div className="component-container">
-            <h2>Тестовая лаборатория</h2>
+        <Container maxW="lg" py={10}>
+            <VStack gap={6} align="stretch">
+                <Heading size="lg" textAlign="center">
+                    Тестовая лаборатория
+                </Heading>
 
-            {/* Секция кнопок */}
-            <section style={{marginBottom: '30px'}}>
-                <h3>Проверка API</h3>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <button onClick={() => execute(TestApi.test, 'json')} disabled={loading}>
-                        Выполнить API Тест
-                    </button>
-                    <button onClick={() => execute(TestApi.pureJava, 'text')} disabled={loading}>
-                        Pure Java Тест
-                    </button>
-                </div>
-            </section>
+                {/* API тесты */}
+                <Box
+                    bg="bg.panel"
+                    p={5}
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="border.muted"
+                >
+                    <Heading size="sm" mb={4}>
+                        Проверка API
+                    </Heading>
 
-            {/* Форма отправки Email */}
-            <form onSubmit={onEmailSubmit} style={{marginBottom: '30px', maxWidth: '400px'}}>
-                <h3>Тест почтового сервера</h3>
-                <div className="form-group">
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="test@example.com"
-                        required
-                        disabled={loading}
-                    />
-                </div>
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Отправка...' : 'Отправить OTP код'}
-                </button>
-            </form>
+                    <HStack gap={3}>
+                        <Button
+                            onClick={() =>
+                                execute(TestApi.test, "json")
+                            }
+                            loading={loading}
+                            colorPalette="blue"
+                            variant="outline"
+                        >
+                            API тест
+                        </Button>
 
-            {/* Вывод ошибок и результатов */}
-            {error && <div className="error-message" style={{color: 'red'}}>Ошибка: {error}</div>}
+                        <Button
+                            onClick={() =>
+                                execute(TestApi.pureJava, "text")
+                            }
+                            loading={loading}
+                            colorPalette="purple"
+                            variant="outline"
+                        >
+                            Pure Java
+                        </Button>
+                    </HStack>
+                </Box>
 
-            <ResultDisplay response={response}/>
-        </div>
-    );
-};
+                {/* Email форма */}
+                <Box bg="bg.panel" p={5} borderRadius="lg">
+                    <Heading size="sm" mb={4}>
+                        Тест почтового сервера
+                    </Heading>
 
-// Вспомогательный компонент для отображения разных типов данных
-const ResultDisplay = ({response}) => {
-    if (!response) return null;
+                    <form onSubmit={onEmailSubmit}>
+                        <VStack align="stretch" gap={3}>
+                            <Field.Root>
+                                <Input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) =>
+                                        setEmail(e.target.value)
+                                    }
+                                    placeholder="test@example.com"
+                                    disabled={loading}
+                                />
+                            </Field.Root>
 
-    return (
-        <div className="data-display" style={{marginTop: '20px', padding: '15px', background: '#f9f9f9'}}>
-            <h3>Результат:</h3>
-            {response.type === 'json' && <pre>{JSON.stringify(response.data, null, 2)}</pre>}
-            {response.type === 'text' && <p>{response.data}</p>}
-            {response.type === 'email' && <p style={{color: 'green'}}>✓ {response.data || 'Запрос обработан'}</p>}
-        </div>
+                            <Button
+                                type="submit"
+                                colorPalette="green"
+                                loading={loading}
+                            >
+                                Отправить OTP код
+                            </Button>
+                        </VStack>
+                    </form>
+                </Box>
+
+                {/* Ошибка */}
+                {error && (
+                    <Alert.Root status="error" borderRadius="lg">
+                        <Alert.Indicator />
+                        <Alert.Content>
+                            <Alert.Title>{error}</Alert.Title>
+                        </Alert.Content>
+                    </Alert.Root>
+                )}
+
+                {/* Результат */}
+                <ResultDisplay response={response} />
+            </VStack>
+        </Container>
     );
 };
 

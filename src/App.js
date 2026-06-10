@@ -9,6 +9,11 @@ import {
     Separator
 } from '@chakra-ui/react';
 
+// Импортируем хук из сгенерированных компонентов Chakra v3
+import {useColorMode} from "./components/ui/color-mode";
+// Исправили импорт: обе иконки теперь из Lucide (react-icons/lu)
+import {LuSun, LuMoon} from "react-icons/lu";
+
 import AccountPage from "./pages/AccountPage";
 import OperationPage from "./pages/OperationPage";
 import AuthenticationPage from "./pages/AuthenticationPage";
@@ -20,17 +25,17 @@ import QuestPage from "./pages/QuestPage";
 import TestPage from "./pages/TestPage";
 import CodePage from "./pages/CodePage";
 import {AuthApi} from "./api";
-import {getDeviceId} from "./utils/authUtils"
-
+import {getDeviceId} from "./utils/authUtils";
 import {TokenService} from "./utils/tokenService";
 import {getUserRole} from "./utils/authUtils";
 
 function App() {
-    const userRole = getUserRole();
+    // 1. Инициализируем хук переключения темы
+    const {colorMode, toggleColorMode} = useColorMode();
 
+    const userRole = getUserRole();
     const [auth, setAuth] = useState(() => !!TokenService.getRefresh());
     const isAuthenticated = auth;
-
     const savedPage = localStorage.getItem("lastPage");
 
     const [currentComponent, setCurrentComponent] = useState(
@@ -44,15 +49,13 @@ function App() {
 
     const handleLogout = async () => {
         const refresh = TokenService.getRefresh();
-
         if (refresh) {
             await AuthApi.logout(refresh, getDeviceId());
         }
-
         TokenService.clear();
-        setAuth(false)
-        setCurrentComponent("authentication")
-        localStorage.removeItem("lastPage")
+        setAuth(false);
+        setCurrentComponent("authentication");
+        localStorage.removeItem("lastPage");
     };
 
     const menuGroups = [
@@ -95,7 +98,6 @@ function App() {
 
     const renderComponent = () => {
         const isAdmin = userRole === "ROLE_ADMIN";
-
         if (isAuthenticated && (currentComponent === 'authentication' || currentComponent === 'registration')) {
             return <AccountPage/>;
         }
@@ -135,14 +137,14 @@ function App() {
     };
 
     return (
-        <Flex minH="100vh" bg="gray.50">
+        <Flex minH="100vh" bg="bg.canvas">
             {/* SIDEBAR */}
             <Box
                 as="aside"
                 w="280px"
-                bg="white"
+                bg="bg.panel"
                 borderRight="1px solid"
-                borderColor="gray.200"
+                borderColor="border.muted"
                 pos="fixed"
                 h="full"
                 p={5}
@@ -159,7 +161,7 @@ function App() {
                                 <Text
                                     fontSize="2xs"
                                     fontWeight="bold"
-                                    color="gray.500"
+                                    color="fg.muted"
                                     textTransform="uppercase"
                                     letterSpacing="widest"
                                     mb={2}
@@ -171,11 +173,10 @@ function App() {
                                     {group.items.map(item => (
                                         <Button
                                             key={item.id}
-                                            // В v3 используем variant и пропсы для активного состояния
                                             variant={currentComponent === item.id ? "solid" : "ghost"}
                                             bg={currentComponent === item.id ? "blue.600" : "transparent"}
-                                            color={currentComponent === item.id ? "white" : "gray.700"}
-                                            _hover={{bg: currentComponent === item.id ? "blue.700" : "gray.100"}}
+                                            color={currentComponent === item.id ? "white" : "fg.muted"}
+                                            _hover={{bg: currentComponent === item.id ? "blue.700" : "bg.muted"}}
                                             justifyContent="flex-start"
                                             onClick={() => handleNavigate(item.id)}
                                             size="sm"
@@ -188,37 +189,41 @@ function App() {
                         ))}
                     </VStack>
 
-                    {/* LOGOUT SECTION */}
-                    {isAuthenticated && (
-                        <Box pt={4}>
-                            <Separator mb={4}/>
+                    {/* СЕКЦИЯ НАСТРОЕК И ВЫХОДА */}
+                    <Box pt={4}>
+                        <Separator mb={4} borderColor="border.muted"/>
+
+                        <Button
+                            onClick={toggleColorMode}
+                            variant="ghost"
+                            size="sm"
+                            width="full"
+                            justifyContent="flex-start"
+                            mb={2}
+                        >
+                            {colorMode === "dark" ? <LuSun/> : <LuMoon/>}
+                            {colorMode === "dark" ? "Светлая тема" : "Тёмная тема"}
+                        </Button>
+
+                        {/* КНОПКА ВЫХОДА */}
+                        {isAuthenticated && (
                             <Button
-                                variant="ghost"
-                                color="red.500"
-                                flex="1"
-                                _hover={{bg: "red.50"}}
-                                w="full"
-                                justifyContent="flex-start"
                                 onClick={handleLogout}
+                                variant="ghost"
+                                size="sm"
+                                width="full"
+                                justifyContent="flex-start"
+                                color="red.500"
                             >
                                 Выйти
                             </Button>
-                        </Box>
-                    )}
+                        )}
+                    </Box>
                 </Flex>
             </Box>
 
-            {/* MAIN CONTENT */}
-            <Box flex="1" ml="280px" p={8}>
-                <Box
-                    bg="white"
-                    p={6}
-                    borderRadius="xl"
-                    boxShadow="sm"
-                    minH="calc(100vh - 64px)"
-                >
-                    {renderComponent()}
-                </Box>
+            <Box ml="280px" p={8} flex="1">
+                {renderComponent()}
             </Box>
         </Flex>
     );

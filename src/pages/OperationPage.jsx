@@ -34,9 +34,9 @@ const BUY_INITIAL_VALUES = {
 const AccountSelect = ({name, value, onChange, accounts, placeholder = "Выберите счёт"}) => (
     <NativeSelect.Root>
         <NativeSelect.Field name={name} value={value} onChange={onChange}>
-            <option value="">{placeholder}</option>
+            <option bg="bg.panel" value="">{placeholder}</option>
             {accounts.map((acc) => (
-                <option key={acc.accountNumber} value={acc.accountNumber}>
+                <option bg="bg.panel" key={acc.accountNumber} value={acc.accountNumber}>
                     {acc.accountNumber} — {acc.balance} {acc.currencyCode}
                 </option>
             ))}
@@ -122,8 +122,8 @@ const OperationPage = () => {
             <Heading size="lg" textAlign="center">Операции со счётом</Heading>
 
             {/* ── Пополнение / Снятие ── */}
-            <Box p={6} borderRadius="xl" border="1px solid" borderColor="gray.200" bg="white">
-                <Heading size="sm" color="white.700">Зачислить валюту на счет</Heading>
+            <Box p={6} borderRadius="xl" border="1px solid" borderColor="border.muted" bg="bg.panel">
+                {/*<Heading size="sm" color="white.700">Зачислить валюту на счет</Heading>*/}
                 <VStack gap={4} align="stretch">
                     <Field.Root required>
                         <Field.Label fontSize="sm">Счёт</Field.Label>
@@ -195,10 +195,10 @@ const OperationPage = () => {
             <Separator/>
 
             {/* ── Покупка валюты ── */}
-            <Box p={6} borderRadius="xl" border="1px solid" borderColor="gray.200" bg="white">
+            <Box p={6} borderRadius="xl" border="1px solid" borderColor="border.muted" bg="bg.panel">
                 <VStack gap={4} align="stretch">
-                    <Heading size="sm" color="white.700">Купить валюту</Heading>
-                    <Text fontSize="sm" color="gray.500">
+                    <Heading size="sm" ccolor="fg.muted">Купить валюту</Heading>
+                    <Text fontSize="sm" color="fg.muted">
                         Покупка валюты между счетами
                     </Text>
 
@@ -234,7 +234,7 @@ const OperationPage = () => {
                             value={buyValues.amount}
                             onChange={handleBuyChange}
                             placeholder="0.00"
-                            bg="white"
+                            bg="bg.panel"
                         />
                     </Field.Root>
                     <Button

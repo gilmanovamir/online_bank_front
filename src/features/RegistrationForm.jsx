@@ -3,60 +3,68 @@ import {
     Button,
     SimpleGrid,
     Box,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 import {FormField} from "../components/FormField";
 
 const FIELDS = [
     {
-        name: 'name',
-        label: 'Имя',
-        placeholder: 'Иван',
+        name: "name",
+        label: "Имя",
+        placeholder: "Иван",
         required: true,
         colSpan: 1,
     },
     {
-        name: 'surname',
-        label: 'Фамилия',
-        placeholder: 'Иванов',
+        name: "surname",
+        label: "Фамилия",
+        placeholder: "Иванов",
         required: true,
         colSpan: 1,
     },
     {
-        name: 'patronymic',
-        label: 'Отчество',
-        placeholder: 'Иванович',
+        name: "patronymic",
+        label: "Отчество",
+        placeholder: "Иванович",
         required: false,
         colSpan: 2,
     },
     {
-        name: 'phone',
-        label: 'Телефон',
-        placeholder: '+7 (999) 000-00-00',
+        name: "phone",
+        label: "Телефон",
+        placeholder: "+7 (999) 000-00-00",
         required: true,
         colSpan: 2,
     },
     {
-        name: 'email',
-        label: 'Email',
-        type: 'email',
-        placeholder: 'example@mail.ru',
+        name: "email",
+        label: "Email",
+        type: "email",
+        placeholder: "example@mail.ru",
         required: true,
         colSpan: 2,
     },
     {
-        name: 'password',
-        label: 'Пароль',
-        type: 'password',
-        placeholder: '*****',
+        name: "password",
+        label: "Пароль",
+        type: "password",
+        placeholder: "*****",
         required: true,
         colSpan: 2,
     },
 ];
 
-const RegistrationForm = ({values, onChange, onSubmit, onAdminSubmit, loading, showAdminButton}) => (
+const RegistrationForm = ({
+                              values,
+                              onChange,
+                              onSubmit,
+                              onAdminSubmit,
+                              loading,
+                              showAdminButton,
+                          }) => (
     <Box as="form" onSubmit={onSubmit}>
         <VStack gap={4} align="stretch">
+
             <SimpleGrid columns={2} gap={4}>
                 {FIELDS.map((field) => (
                     <FormField
@@ -69,7 +77,12 @@ const RegistrationForm = ({values, onChange, onSubmit, onAdminSubmit, loading, s
             </SimpleGrid>
 
             <VStack gap={3} pt={4}>
-                <Button colorPalette="blue" type="submit" w="full" loading={loading}>
+                <Button
+                    colorPalette="blue"
+                    type="submit"
+                    w="full"
+                    loading={loading}
+                >
                     Зарегистрироваться
                 </Button>
 

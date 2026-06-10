@@ -1,17 +1,22 @@
-import {AccountApi, OperationApi} from "../api";
-import {useAccountForm} from "../hooks/useAccountForm";
+import React, { useEffect, useState } from "react";
+import {
+    VStack,
+    Box,
+    Heading,
+    Text,
+    Separator,
+    Spinner,
+    HStack
+} from "@chakra-ui/react";
+import { AccountApi, OperationApi } from "../api";
+import { useAccountForm } from "../hooks/useAccountForm";
 import AccountCreateForm from "../features/AccountCreateForm";
 import AccountTable from "../features/AccountTable";
 import OperationTable from "../features/OperationTable";
-import React, {useEffect, useState} from "react";
-import {getUserRole} from "../utils/authUtils";
-import {Heading} from "@chakra-ui/react";
-
-
-const userRole = getUserRole();
+import { getUserRole } from "../utils/authUtils";
 
 const AccountPage = () => {
-    const {currencyCode, setCurrencyCode} = useAccountForm();
+    const { currencyCode, setCurrencyCode } = useAccountForm();
 
     const [accounts, setAccounts] = useState([]);
     const [operations, setOperations] = useState([]);
@@ -57,48 +62,69 @@ const AccountPage = () => {
     };
 
     return (
-        <div className="container">
-            <Heading size="lg" textAlign="center" >Управление счетами</Heading>
+        <VStack gap={6} align="stretch" maxW="1000px" mx="auto">
+            <Heading size="lg" textAlign="center">Управление счетами</Heading>
 
             {/* Секция создания счета */}
-            <div className="card" style={{marginBottom: '20px'}}>
+            <Box
+                p={5}
+                bg="bg.panel"
+                border="1px solid"
+                borderColor="border.muted"
+                borderRadius="xl"
+            >
                 <AccountCreateForm
                     currencyCode={currencyCode}
                     setCurrencyCode={setCurrencyCode}
                     onCreate={handleCreateAccount}
                     loading={loading}
                 />
-            </div>
+            </Box>
 
             {/* Основная таблица счетов */}
-            <section className="accounts-section">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <h3>Список активных счетов</h3>
-                </div>
+            <Box as="section">
+                <Heading size="md" mb={4}>Список активных счетов</Heading>
 
                 {accounts.length > 0 ? (
                     <AccountTable accounts={accounts} onShowHistory={handleShowHistory}/>
                 ) : (
-                    <div className="empty-state">У вас пока нет открытых счетов.</div>
+                    /* ИСПРАВЛЕНО: Адаптивный цвет текста заглушки */
+                    <Text color="fg.muted">У вас пока нет открытых счетов.</Text>
                 )}
-            </section>
+            </Box>
 
-            {error && <p className="error-message">{error}</p>}
-            {loading && <p className="loading-spinner">Обработка запроса...</p>}
+            {/* ИСПРАВЛЕНО: Вывод ошибок через адаптивный красный текст */}
+            {error && <Text color="red.fg" fontWeight="medium">Ошибка: {error}</Text>}
+
+            {/* ИСПРАВЛЕНО: Спиннер загрузки заменен на стандартный Chakra Loader */}
+            {loading && (
+                <HStack gap={2} justify="center" py={2}>
+                    <Spinner size="sm" color="blue.500" />
+                    <Text fontSize="sm" color="fg.muted">Обработка запроса...</Text>
+                </HStack>
+            )}
+
+            {/* История операций */}
             {selectedAcc && (
-                <section className="history-section"
-                         style={{marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #eee'}}>
-                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                        <h3>История по счету: <span style={{color: '#007bff'}}>{selectedAcc}</span></h3>
-                    </div>
+                /* ИСПРАВЛЕНО: section заменен на Box с адаптивным верхним отступом */
+                <Box as="section" pt={4}>
+                    {/* ИСПРАВЛЕНО: Заменили захардкоженную серую линию на системный сепаратор */}
+                    <Separator mb={6} borderColor="border.muted" />
+
+                    <Heading size="md" mb={4}>
+                        {/* ИСПРАВЛЕНО: Синий цвет выделения заменен на адаптивный blue.fg */}
+                        История по счету: <Box as="span" color="blue.fg">{selectedAcc}</Box>
+                    </Heading>
+
                     {operations.length > 0 ? (
                         <OperationTable operations={operations}/>
                     ) : (
-                        <p className="no-data">Операций по этому счету не найдено.</p>
+                        /* ИСПРАВЛЕНО: Адаптивный цвет для текста пустой истории */
+                        <Text color="fg.muted">Операций по этому счету не найдено.</Text>
                     )}
-                </section>
+                </Box>
             )}
-        </div>
+        </VStack>
     );
 };
 

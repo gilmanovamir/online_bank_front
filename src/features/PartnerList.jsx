@@ -1,36 +1,60 @@
 import React from "react";
+import {
+    Box,
+    Heading,
+    Text,
+    Table,
+} from "@chakra-ui/react";
 
-const PartnerList = ({partners}) => {
+import { formatCategory } from "../utils/localisation";
+
+const PartnerList = ({ partners }) => {
     if (!partners || partners.length === 0) {
-        return <p>Список партнёров пуст.</p>;
+        return (
+            <Text color="fg.muted">
+                Список партнёров пуст.
+            </Text>
+        );
     }
 
-
     return (
-        <div className="partner-list">
-            <h3>Текущие партнеры</h3>
-            <table
-                style={{width: `100%`, borderCollapse: `collapse`, marginTop: `10px`}}>
-                <thead>
-                <tr style={{backgroundColor: `#f4f4f4`, textAlign: `left`}}>
-                    <th style={{padding: `10px`, border: `1px solid #ddd`}}>Название</th>
-                    <th style={{padding: `10px`, border: `1px solid #ddd`}}>Категория</th>
-                </tr>
-                </thead>
-                <tbody>
-                {partners.map((partner, index) => (
-                    <tr key={index}>
-                        <td style={{padding: `10px`, border: `1px solid #ddd`}}>
-                            {partner.name}
-                        </td>
-                        <td style={{padding: '10px', border: '1px solid #ddd'}}>
-                            {(partner.category)}
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
+        <Box>
+            <Heading size="md" mb={4}>
+                Текущие партнеры
+            </Heading>
+
+            <Table.ScrollArea>
+                <Table.Root variant="outline" size="sm">
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader>
+                                Название
+                            </Table.ColumnHeader>
+                            <Table.ColumnHeader>
+                                Категория
+                            </Table.ColumnHeader>
+                        </Table.Row>
+                    </Table.Header>
+
+                    <Table.Body>
+                        {partners.map((partner, index) => (
+                            <Table.Row key={index}>
+                                <Table.Cell>
+                                    {partner.name}
+                                </Table.Cell>
+
+                                <Table.Cell color="fg.default">
+                                    <Text fontSize="sm">
+                                        {formatCategory(partner.category)}
+                                    </Text>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))}
+                    </Table.Body>
+                </Table.Root>
+            </Table.ScrollArea>
+        </Box>
     );
 };
+
 export default PartnerList;

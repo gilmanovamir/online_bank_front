@@ -1,9 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {PartnerApi} from '../api';
-import {useForm} from '../hooks/useForm';
+import React, { useEffect, useState } from 'react';
+import {
+    Box,
+    Heading,
+    Text,
+    Alert,
+    VStack
+} from '@chakra-ui/react'; // Импортируем компоненты Chakra
+import { PartnerApi } from '../api';
+import { useForm } from '../hooks/useForm';
 import PartnerCreateForm from '../features/PartnerCreateForm';
 import PartnerList from "../features/PartnerList";
-import {getUserRole} from "../utils/authUtils"; // 1. Импортируем утилиту
+import { getUserRole } from "../utils/authUtils";
 
 const PartnerPage = () => {
     const [partners, setPartners] = useState([]);
@@ -11,13 +18,12 @@ const PartnerPage = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
-    // 2. Получаем роль и проверяем на админа
     const userRole = getUserRole();
     const isAdmin = Array.isArray(userRole)
         ? userRole.includes("ROLE_ADMIN")
         : userRole === "ROLE_ADMIN";
 
-    const {values, handleChange, reset} = useForm({
+    const { values, handleChange, reset } = useForm({
         name: '',
         category: 'MEDICINE',
     });
@@ -29,7 +35,7 @@ const PartnerPage = () => {
         } catch (err) {
             console.error("Не удалось загрузить партнеров", err);
         }
-    }
+    };
 
     useEffect(() => {
         fetchPartners();
@@ -54,47 +60,65 @@ const PartnerPage = () => {
     };
 
     return (
-        <div className="component-container">
-            <h2>Партнеры банка</h2>
+        <VStack gap={6} align="stretch" maxW="1000px" mx="auto">
+            <Heading size="lg" textAlign="center">Партнеры банка</Heading>
 
-            {/* 3. Форму создания показываем ТОЛЬКО админу */}
             {isAdmin && (
-                <div style={{
-                    marginBottom: '30px',
-                    padding: '20px',
-                    backgroundColor: '#f8f9fa',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6'
-                }}>
-                    <h3 style={{marginTop: 0}}>Добавить нового партнера</h3>
+                <Box
+                    p={5}
+                    bg="bg.panel"
+                    borderRadius="xl"
+                    border="1px solid"
+                    borderColor="border.muted"
+                >
+                    <Heading size="sm" mb={4}>Добавить нового партнера</Heading>
+
                     <PartnerCreateForm
                         values={values}
                         onChange={handleChange}
                         onSubmit={handleSubmit}
                         loading={loading}
                     />
-                    {error &&
-                        <div className="error-message" style={{color: 'red', marginTop: '10px'}}>Ошибка: {error}</div>}
-                    {success && (
-                        <div className="success-message" style={{color: 'green', marginTop: '15px'}}>
-                            ✓ Партнер успешно создан!
-                        </div>
+
+                    {error && (
+                        <Alert.Root status="error" borderRadius="lg" mt={4}>
+                            <Alert.Indicator />
+                            <Alert.Content>
+                                <Alert.Title>Ошибка: {error}</Alert.Title>
+                            </Alert.Content>
+                        </Alert.Root>
                     )}
-                </div>
+
+                    {success && (
+                        <Alert.Root status="success" borderRadius="lg" mt={4}>
+                            <Alert.Indicator />
+                            <Alert.Content>
+                                <Alert.Title>Партнер успешно создан!</Alert.Title>
+                            </Alert.Content>
+                        </Alert.Root>
+                    )}
+                </Box>
             )}
 
             {/* Вывод списка партнеров (виден всем) */}
-            <PartnerList partners={partners}/>
+            <PartnerList partners={partners} />
 
-            {/* 4. Админское примечание скрываем полностью от обычных пользователей */}
+            {/* Админское примечание скрываем полностью от обычных пользователей */}
             {isAdmin && (
-                <div className="admin-note"
-                     style={{marginTop: '30px', padding: '15px', border: '1px solid #eee', color: '#666'}}>
-                    <p><strong>Панель администратора:</strong> Вы можете добавлять партнеров, которые будут отображаться
-                        в общем списке для всех клиентов банка.</p>
-                </div>
+                /* ИСПРАВЛЕНО: Адаптивный Box с цветом текста fg.muted вместо жесткого #666 */
+                <Box
+                    p={4}
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="border.muted"
+                    bg="bg.muted"
+                >
+                    <Text fontSize="sm" color="fg.muted">
+                        <strong>Панель администратора:</strong> Вы можете добавлять партнеров, которые будут отображаться в общем списке для всех клиентов банка.
+                    </Text>
+                </Box>
             )}
-        </div>
+        </VStack>
     );
 };
 

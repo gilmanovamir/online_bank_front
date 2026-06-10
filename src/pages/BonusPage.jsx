@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import {
     VStack,
     HStack,
@@ -12,12 +12,12 @@ import {
     Table,
     Field,
 } from "@chakra-ui/react";
-import {BonusApi} from "../api";
+import { BonusApi } from "../api";
 import OperationTable from "../features/OperationTable";
 
 // ─── Строка бонусного счёта с inline-конвертацией ────────────────────────────
 
-const BonusRow = ({account, onConvert, convertLoading}) => {
+const BonusRow = ({ account, onConvert, convertLoading }) => {
     const [points, setPoints] = useState("");
 
     const handleSubmit = () => {
@@ -29,16 +29,27 @@ const BonusRow = ({account, onConvert, convertLoading}) => {
     return (
         <Table.Row>
             <Table.Cell>
-                <Text fontFamily="mono" fontSize="sm">{account.accountNumber}</Text>
+                <Text fontFamily="mono" fontSize="sm">
+                    {account.accountNumber}
+                </Text>
             </Table.Cell>
+
             <Table.Cell>
                 <HStack gap={1} align="baseline">
-                    <Text fontWeight="bold" color="black.700">
+                    <Text fontWeight="bold" color="fg.default">
                         {Number(account.points).toLocaleString("ru-RU")}
                     </Text>
-                    <Badge colorPalette="blue" variant="subtle" fontSize="xs">бонусов</Badge>
+
+                    <Badge
+                        colorPalette="blue"
+                        variant="subtle"
+                        fontSize="xs"
+                    >
+                        бонусов
+                    </Badge>
                 </HStack>
             </Table.Cell>
+
             <Table.Cell w="200px">
                 <Field.Root>
                     <Input
@@ -52,8 +63,8 @@ const BonusRow = ({account, onConvert, convertLoading}) => {
                     />
                 </Field.Root>
             </Table.Cell>
-            <Table.Cell>
 
+            <Table.Cell>
                 <Button
                     variant="outline"
                     alignSelf="flex-end"
@@ -103,11 +114,13 @@ const BonusPage = () => {
         setResult(null);
 
         try {
-            const data = await BonusApi.convert({accountNumber, points: Number(points)});
+            const data = await BonusApi.convert({
+                accountNumber,
+                points: Number(points),
+            });
+
             setResult(data);
-
             await loadAccounts();
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -117,22 +130,36 @@ const BonusPage = () => {
 
     return (
         <VStack gap={6} align="stretch">
-            <Heading size="lg" textAlign="center">Бонусный счёт</Heading>
+            <Heading size="lg" textAlign="center">
+                Бонусный счёт
+            </Heading>
 
             {accountsLoading && (
-                <Text color="gray.400" fontSize="sm">Загрузка счетов...</Text>
+                <Text color="fg.muted" fontSize="sm">
+                    Загрузка счетов...
+                </Text>
             )}
 
             {accountsError && (
                 <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator/>
-                    <Alert.Content><Alert.Title>{accountsError}</Alert.Title></Alert.Content>
+                    <Alert.Indicator />
+                    <Alert.Content>
+                        <Alert.Title>{accountsError}</Alert.Title>
+                    </Alert.Content>
                 </Alert.Root>
             )}
 
             {!accountsLoading && !accountsError && accounts.length === 0 && (
-                <Box p={6} borderRadius="xl" border="1px dashed" borderColor="gray.200" textAlign="center">
-                    <Text color="gray.400">У вас пока нет бонусных счетов</Text>
+                <Box
+                    p={6}
+                    borderRadius="xl"
+                    border="1px dashed"
+                    borderColor="border.muted"
+                    textAlign="center"
+                >
+                    <Text color="fg.muted">
+                        У вас пока нет бонусных счетов
+                    </Text>
                 </Box>
             )}
 
@@ -141,12 +168,21 @@ const BonusPage = () => {
                     <Table.Root variant="outline" size="sm">
                         <Table.Header>
                             <Table.Row>
-                                <Table.ColumnHeader>Номер счёта</Table.ColumnHeader>
-                                <Table.ColumnHeader>Баланс</Table.ColumnHeader>
-                                <Table.ColumnHeader>Сумма конвертации</Table.ColumnHeader>
-                                <Table.ColumnHeader>Действие</Table.ColumnHeader>
+                                <Table.ColumnHeader>
+                                    Номер счёта
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader>
+                                    Баланс
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader>
+                                    Сумма конвертации
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader>
+                                    Действие
+                                </Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
+
                         <Table.Body>
                             {accounts.map((acc) => (
                                 <BonusRow
@@ -163,15 +199,19 @@ const BonusPage = () => {
 
             {error && (
                 <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator/>
-                    <Alert.Content><Alert.Title>{error}</Alert.Title></Alert.Content>
+                    <Alert.Indicator />
+                    <Alert.Content>
+                        <Alert.Title>{error}</Alert.Title>
+                    </Alert.Content>
                 </Alert.Root>
             )}
 
             {result && (
                 <Box>
-                    <Heading size="md" mb={4}>Результат конвертации</Heading>
-                    <OperationTable operations={[result]}/>
+                    <Heading size="md" mb={4}>
+                        Результат конвертации
+                    </Heading>
+                    <OperationTable operations={[result]} />
                 </Box>
             )}
         </VStack>

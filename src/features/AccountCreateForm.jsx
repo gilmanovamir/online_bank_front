@@ -14,13 +14,14 @@ const AccountCreateForm = ({currencyCode, setCurrencyCode, onCreate, loading}) =
             <NativeSelect.Root>
                 <NativeSelect.Field value={currencyCode} onChange={(e) => setCurrencyCode(e.target.value)}>
                     {CURRENCIES.map((code) => (
-                        <option key={code} value={code}>{code}</option>
+                        <option bg="bg.panel" key={code} value={code}>{code}</option>
                     ))}
                 </NativeSelect.Field>
                 <NativeSelect.Indicator/>
             </NativeSelect.Root>
         </Field.Root>
-        <Button variant="outline" alignSelf="flex-end"  colorPalette="blue" onClick={onCreate} loading={loading} w="full">
+        <Button variant="outline" alignSelf="flex-end" colorPalette="blue" onClick={onCreate} loading={loading}
+                w="full">
             Создать счёт
         </Button>
     </VStack>

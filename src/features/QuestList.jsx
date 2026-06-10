@@ -1,13 +1,5 @@
-import {
-    SimpleGrid,
-    Box,
-    VStack,
-    HStack,
-    Heading,
-    Text,
-    Badge,
-    Progress,
-} from "@chakra-ui/react";
+import {SimpleGrid, Box, VStack, HStack, Heading, Text, Badge, Progress} from "@chakra-ui/react";
+import {formatCategory} from "../utils/localisation";
 
 const formatDate = (value) =>
     value ? new Date(value).toLocaleDateString("ru-RU") : "—";
@@ -20,9 +12,11 @@ const QuestCard = ({quest}) => {
             p={5}
             borderRadius="xl"
             border="1px solid"
-            borderColor={quest.isComplete ? "green.200" : "gray.200"}
-            bg={quest.isComplete ? "green.50" : "white"}
+            // Используем более нейтральные цвета границ
+            borderColor={quest.isComplete ? "green.solid" : "border.muted"}
+            bg={quest.isComplete ? "bg.success.subtle" : "bg.panel"}
             position="relative"
+            shadow="sm"
         >
             {quest.isComplete && (
                 <Badge
@@ -32,23 +26,24 @@ const QuestCard = ({quest}) => {
                     top={3}
                     right={3}
                 >
-                    Выполнено ✓
+                    Выполнено
                 </Badge>
             )}
 
             <VStack align="stretch" gap={3}>
                 <Heading size="sm" pr={quest.isComplete ? 24 : 0}>{quest.name}</Heading>
 
-                <Text fontSize="sm" color="gray.600">
-                    Категория: <Text as="b" color="gray.800">{quest.questCategory}</Text>
+                <Text fontSize="sm" color="fg.muted">
+                    {/* ПОДМЕНЯЕМ ТУТ */}
+                    Категория: <Text as="b" color="fg.default">{formatCategory(quest.questCategory)}</Text>
                 </Text>
 
                 <Box>
                     <HStack justify="space-between" mb={1}>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="fg.muted">
                             Прогресс: {quest.userProgress} / {quest.necessaryToReward}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">{Math.floor(progressPercent)}%</Text>
+                        <Text fontSize="xs" color="fg.muted">{Math.floor(progressPercent)}%</Text>
                     </HStack>
                     <Progress.Root
                         value={progressPercent}
@@ -62,7 +57,7 @@ const QuestCard = ({quest}) => {
                     </Progress.Root>
                 </Box>
 
-                <Text fontSize="xs" color="gray.400">
+                <Text fontSize="xs" color="fg.subtle">
                     Истекает: {formatDate(quest.questExpireDate)}
                 </Text>
             </VStack>

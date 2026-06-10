@@ -57,7 +57,7 @@ const PayPage = () => {
         <VStack gap={6} align="stretch" maxW="600px" mx="auto" py={8}>
             <Heading size="lg" textAlign="center">Выполнение платежа</Heading>
 
-            <Box p={6} borderRadius="xl" border="1px solid" borderColor="gray.200" bg="white">
+            <Box p={6} borderRadius="xl" border="1px solid" borderColor="border.muted" bg="bg.panel">
                 <PayForm
                     values={values}
                     onChange={handleChange}
@@ -77,7 +77,7 @@ const PayPage = () => {
             )}
 
             {response && (
-                <Box p={4} border="1px solid" borderColor="green.200" borderRadius="xl" bg="white">
+                <Box p={4} border="1px solid" borderColor="green.200" borderRadius="xl" bg="bg.panel">
                     <Heading size="md" mb={4} color="green.600">Операция успешна</Heading>
                     <OperationTable operations={[response]} />
                 </Box>
