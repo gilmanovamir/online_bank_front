@@ -170,19 +170,24 @@ const AuthenticationPage = ({initialMode = "login", onSuccess, userRole}) => {
             setLoading(false);
         }
     };
-
     const handleLogout = () => execute(async () => {
+        console.log("Logout clicked");
+
         const refresh = TokenService.getRefresh();
+        console.log("Refresh token:", refresh);
+
         if (refresh) {
+            console.log("Sending logout request");
+
             try {
                 await AuthApi.logout(refresh, getDeviceId());
+                console.log("Logout request success");
             } catch (e) {
-                console.error("Logout API failed", e);
+                console.error("Logout request failed", e);
             }
         }
+
         TokenService.clear();
-        setResendStatus("Вы вышли из системы");
-        redirectAfter(1000);
     });
 
     const handleLogin = () => execute(async () => {

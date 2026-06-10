@@ -134,7 +134,7 @@ export const AuthApi = {
     // Верификация существующего пользователя (вход с нового устройства / UA mismatch)
     verifyDefault: (verifyData) => api.post("/api/default-verify/email", verifyData),
 
-    logout: (token, deviceId) => api.post("/api/logout", {token, deviceId})
+    logout: (refreshToken, deviceId) => api.post("/api/logout", {refreshToken: refreshToken, deviceId: deviceId})
 };
 
 export const AccountApi = {

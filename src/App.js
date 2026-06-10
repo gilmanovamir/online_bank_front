@@ -9,7 +9,6 @@ import {
     Separator
 } from '@chakra-ui/react';
 
-// Твои импорты
 import AccountPage from "./pages/AccountPage";
 import OperationPage from "./pages/OperationPage";
 import AuthenticationPage from "./pages/AuthenticationPage";
@@ -20,13 +19,17 @@ import PayPage from "./pages/PayPage";
 import QuestPage from "./pages/QuestPage";
 import TestPage from "./pages/TestPage";
 import CodePage from "./pages/CodePage";
+import {AuthApi} from "./api";
+import {getDeviceId} from "./utils/authUtils"
 
 import {TokenService} from "./utils/tokenService";
 import {getUserRole} from "./utils/authUtils";
 
 function App() {
     const userRole = getUserRole();
-    const isAuthenticated = !!TokenService.getRefresh();
+
+    const [auth, setAuth] = useState(() => !!TokenService.getRefresh());
+    const isAuthenticated = auth;
 
     const savedPage = localStorage.getItem("lastPage");
 
@@ -39,10 +42,17 @@ function App() {
         localStorage.setItem("lastPage", page);
     };
 
-    const handleLogout = () => {
-        TokenService.clear();
-        window.location.reload();
+    const handleLogout = async () => {
+        const refresh = TokenService.getRefresh();
 
+        if (refresh) {
+            await AuthApi.logout(refresh, getDeviceId());
+        }
+
+        TokenService.clear();
+        setAuth(false)
+        setCurrentComponent("authentication")
+        localStorage.removeItem("lastPage")
     };
 
     const menuGroups = [
@@ -97,7 +107,10 @@ function App() {
             case 'registration':
                 return <AuthenticationPage
                     initialMode={currentComponent}
-                    onSuccess={() => setCurrentComponent('account')}
+                    onSuccess={() => {
+                        setAuth(true);
+                        setCurrentComponent('account');
+                    }}
                     userRole={userRole}
                 />;
             case 'bonusAccount':
