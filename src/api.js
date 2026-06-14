@@ -113,6 +113,19 @@ api.interceptors.response.use(
 const request = (method, url, data = null, params = null) =>
     api({method, url, data, params}).then(res => res.data);
 
+const request1 = (
+    method,
+    url,
+    data = null,
+    config = {}
+) =>
+    api({
+        method,
+        url,
+        data,
+        ...config
+    }).then(res => res.data);
+
 // ============================
 // API Объекты
 // ============================
@@ -201,6 +214,11 @@ export const TestApi = {
     pureJava: () => request("get", "/test/pure"),
     sendEmail: (email) => request("post", `/test/send-email?email=${encodeURIComponent(email)}`),
 };
+
+export const ReceiptApi ={
+    getReceipt: (operationId) =>
+        request1("get", `/api/receipt/download/${operationId}`, null, {responseType: "blob"})
+}
 
 console.log("API_URL =", process.env.REACT_APP_API_URL);
 

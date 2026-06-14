@@ -1,12 +1,16 @@
+import {useState} from "react";
 import {
     Table,
     Badge,
     Text,
+    Button
 } from "@chakra-ui/react";
+import {ReceiptApi} from "../api";
 
 const OPERATION_TYPE_MAP = {
     DEPOSIT: {label: "Пополнение", colorPalette: "blue"},
-    WITHDRAW: {label: "Снятие", colorPalette: "red"},
+    WITHDRAW: {label: "Списание", colorPalette: "red"},
+    BUY_CURRENCY: {label: "Обмен", colorPalette: "blue"},
 };
 
 const OperationBadge = ({type}) => {
@@ -27,6 +31,33 @@ const formatDate = (value) =>
     value ? new Date(value).toLocaleString("ru-RU") : "—";
 
 const OperationTable = ({operations}) => {
+    const [downloadingId, setDownloadingId] = useState(null);
+
+    const handleDownloadReceipt = async (id) => {
+        setDownloadingId(id);
+        try {
+            const blobData = await ReceiptApi.getReceipt(id);
+            console.log(blobData)
+
+            const file = new Blob([blobData], {type: "application/pdf"});
+            const fileURL = URL.createObjectURL(file);
+
+            const link = document.createElement("a");
+            link.href = fileURL;
+            link.setAttribute("download", `receipt-${id}.pdf`);
+
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            URL.revokeObjectURL(fileURL);
+        } catch (error) {
+            alert("Не удалось скачать чек: " + error.message);
+        } finally {
+            setDownloadingId(null);
+        }
+    };
+
     if (!operations?.length)
         return (
             <Text color="fg.muted">
@@ -39,13 +70,12 @@ const OperationTable = ({operations}) => {
             <Table.Root variant="outline" size="sm">
                 <Table.Header>
                     <Table.Row>
-                        <Table.ColumnHeader>Номер счёта</Table.ColumnHeader>
-                        <Table.ColumnHeader>Дата</Table.ColumnHeader>
-                        <Table.ColumnHeader>ID</Table.ColumnHeader>
-                        <Table.ColumnHeader>Тип</Table.ColumnHeader>
-                        <Table.ColumnHeader>Описание</Table.ColumnHeader>
-                        <Table.ColumnHeader>Валюта</Table.ColumnHeader>
-                        <Table.ColumnHeader>Сумма</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="center">Дата Операции</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="center">Тип</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="center">Описание</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="left">Валюта</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="right">Сумма</Table.ColumnHeader>
+                        <Table.ColumnHeader textAlign="center">Чек</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
 
@@ -55,37 +85,13 @@ const OperationTable = ({operations}) => {
 
                         return (
                             <Table.Row key={id}>
-                                <Table.Cell>
-                                    <Text
-                                        fontFamily="mono"
-                                        fontSize="sm"
-                                        color="fg.default"
-                                    >
-                                        {op.accountNumber}
-                                    </Text>
-                                </Table.Cell>
 
-                                <Table.Cell
-                                    fontSize="sm"
-                                    color="fg.muted"
-                                >
+                                <Table.Cell fontSize="sm" color="fg.muted" textAlign="center">
                                     {formatDate(op.createdAt)}
                                 </Table.Cell>
 
-                                <Table.Cell>
-                                    <Text
-                                        fontFamily="mono"
-                                        fontSize="xs"
-                                        color="fg.muted"
-                                    >
-                                        {id}
-                                    </Text>
-                                </Table.Cell>
-
-                                <Table.Cell>
-                                    <OperationBadge
-                                        type={op.operationType}
-                                    />
+                                <Table.Cell textAlign="center">
+                                    <OperationBadge type={op.operationType}/>
                                 </Table.Cell>
 
                                 <Table.Cell color="fg.default">
@@ -93,16 +99,25 @@ const OperationTable = ({operations}) => {
                                 </Table.Cell>
 
                                 <Table.Cell>
-                                    <Badge
-                                        variant="outline"
-                                        colorPalette="blue"
-                                    >
+                                    <Badge variant="subtle" colorPalette="blue" textAlign="right">
                                         {op.currencyCode}
                                     </Badge>
                                 </Table.Cell>
 
-                                <Table.Cell color="fg.default">
-                                    {op.amount}
+                                <Table.Cell color="fg.default" textAlign="right">
+                                    {Number(op.amount).toLocaleString()}
+                                </Table.Cell>
+
+                                <Table.Cell textAlign="center">
+                                    <Button
+                                        size="xs"
+                                        variant="outline"
+                                        colorPalette="blue"
+                                        loading={downloadingId === id}
+                                        onClick={() => handleDownloadReceipt(id)}
+                                    >
+                                        Скачать
+                                    </Button>
                                 </Table.Cell>
                             </Table.Row>
                         );

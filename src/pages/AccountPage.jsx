@@ -13,7 +13,6 @@ import { useAccountForm } from "../hooks/useAccountForm";
 import AccountCreateForm from "../features/AccountCreateForm";
 import AccountTable from "../features/AccountTable";
 import OperationTable from "../features/OperationTable";
-import { getUserRole } from "../utils/authUtils";
 
 const AccountPage = () => {
     const { currencyCode, setCurrencyCode } = useAccountForm();
@@ -88,15 +87,12 @@ const AccountPage = () => {
                 {accounts.length > 0 ? (
                     <AccountTable accounts={accounts} onShowHistory={handleShowHistory}/>
                 ) : (
-                    /* ИСПРАВЛЕНО: Адаптивный цвет текста заглушки */
                     <Text color="fg.muted">У вас пока нет открытых счетов.</Text>
                 )}
             </Box>
 
-            {/* ИСПРАВЛЕНО: Вывод ошибок через адаптивный красный текст */}
             {error && <Text color="red.fg" fontWeight="medium">Ошибка: {error}</Text>}
 
-            {/* ИСПРАВЛЕНО: Спиннер загрузки заменен на стандартный Chakra Loader */}
             {loading && (
                 <HStack gap={2} justify="center" py={2}>
                     <Spinner size="sm" color="blue.500" />
@@ -106,20 +102,16 @@ const AccountPage = () => {
 
             {/* История операций */}
             {selectedAcc && (
-                /* ИСПРАВЛЕНО: section заменен на Box с адаптивным верхним отступом */
                 <Box as="section" pt={4}>
-                    {/* ИСПРАВЛЕНО: Заменили захардкоженную серую линию на системный сепаратор */}
                     <Separator mb={6} borderColor="border.muted" />
 
                     <Heading size="md" mb={4}>
-                        {/* ИСПРАВЛЕНО: Синий цвет выделения заменен на адаптивный blue.fg */}
                         История по счету: <Box as="span" color="blue.fg">{selectedAcc}</Box>
                     </Heading>
 
                     {operations.length > 0 ? (
                         <OperationTable operations={operations}/>
                     ) : (
-                        /* ИСПРАВЛЕНО: Адаптивный цвет для текста пустой истории */
                         <Text color="fg.muted">Операций по этому счету не найдено.</Text>
                     )}
                 </Box>
